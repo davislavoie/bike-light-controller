@@ -65,10 +65,9 @@ float readVbat() {
 }
 
 void allOutputsOff() {
-    analogWrite(PIN_HEADLIGHT, 0);
-    for (uint8_t p : {PIN_REAR_BRAKE, PIN_REAR_TURN_L, PIN_REAR_TURN_R, PIN_LED_TURN_L, PIN_LED_TURN_R})
-        digitalWrite(p, LOW);
-    for (uint8_t p : PIN_BATT_BAR) digitalWrite(p, LOW);
+    for (uint8_t p : {PIN_HEADLIGHT, PIN_LED_TURN_L, PIN_LED_TURN_R}) analogWrite(p, 0);
+    for (uint8_t p : PIN_BATT_BAR) analogWrite(p, 0);
+    for (uint8_t p : {PIN_REAR_BRAKE, PIN_REAR_TURN_L, PIN_REAR_TURN_R}) digitalWrite(p, LOW);
 }
 
 // Below 9.4 V for 5 s: everything off for good, just a short blink of bar 1
@@ -77,9 +76,9 @@ void allOutputsOff() {
     allOutputsOff();
     Serial.println("Low-voltage cutoff: turn the master switch off");
     for (;;) {
-        digitalWrite(PIN_BATT_BAR[0], HIGH);
+        analogWrite(PIN_BATT_BAR[0], PWM_RANGE);
         delay(30);
-        digitalWrite(PIN_BATT_BAR[0], LOW);
+        analogWrite(PIN_BATT_BAR[0], 0);
         delay(5000);
     }
 }
@@ -138,14 +137,16 @@ void loop() {
     digitalWrite(PIN_REAR_TURN_L, leftOn(turn));
     digitalWrite(PIN_REAR_TURN_R, rightOn(turn));
 
+    // HUD LEDs are PWM-dimmed (same 25 kHz) so they don't glare at night.
+    uint16_t hud = hudDuty(mode, bright, strobeSel.pattern());
     bool turnPhase = now % HUD_TURN_PERIOD_MS < HUD_TURN_PERIOD_MS / 2;
-    digitalWrite(PIN_LED_TURN_L, leftOn(turn) && turnPhase);
-    digitalWrite(PIN_LED_TURN_R, rightOn(turn) && turnPhase);
+    analogWrite(PIN_LED_TURN_L, leftOn(turn) && turnPhase ? hud : 0);
+    analogWrite(PIN_LED_TURN_R, rightOn(turn) && turnPhase ? hud : 0);
 
     uint8_t bars = battery.bars();
     bool warnPhase = now % BAR_WARN_PERIOD_MS < BAR_WARN_PERIOD_MS / 2;
     for (uint8_t i = 0; i < 4; i++)
-        digitalWrite(PIN_BATT_BAR[i], bars == 0 ? (i == 0 && warnPhase) : i < bars);
+        analogWrite(PIN_BATT_BAR[i], (bars == 0 ? (i == 0 && warnPhase) : i < bars) ? hud : 0);
 
     // ---- Serial status once a second (for VBAT_CAL and bench testing)
     static uint32_t lastPrint = 0;

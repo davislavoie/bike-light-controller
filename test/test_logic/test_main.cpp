@@ -222,6 +222,16 @@ void test_selector_starts_from_saved_pattern() {
     TEST_ASSERT_EQUAL(StrobePattern::DaytimeFlash, s.pattern());
 }
 
+void test_hud_dims_at_night_only() {
+    const auto SP = StrobePattern::SteadyPulse, DF = StrobePattern::DaytimeFlash, DB = StrobePattern::DoubleFlash;
+    TEST_ASSERT_EQUAL_UINT16(PWM_RANGE, hudDuty(HeadMode::Off, Brightness::High, SP));     // headlight off: full
+    TEST_ASSERT_EQUAL_UINT16(PWM_RANGE, hudDuty(HeadMode::Strobe, Brightness::High, DF));  // daytime strobes: full
+    TEST_ASSERT_EQUAL_UINT16(PWM_RANGE, hudDuty(HeadMode::Strobe, Brightness::Low, DB));
+    TEST_ASSERT_EQUAL_UINT16(HUD_DUTY[0], hudDuty(HeadMode::On, Brightness::Low, DF));     // ON: dimmed
+    TEST_ASSERT_EQUAL_UINT16(HUD_DUTY[2], hudDuty(HeadMode::Strobe, Brightness::High, SP)); // night strobe: dimmed
+    TEST_ASSERT_TRUE(HUD_DUTY[0] > HUD_DUTY[1] && HUD_DUTY[1] > HUD_DUTY[2]);
+}
+
 int main() {
     UNITY_BEGIN();
     RUN_TEST(test_both_levers_brake_immediately);
@@ -245,5 +255,6 @@ int main() {
     RUN_TEST(test_double_flash);
     RUN_TEST(test_flicks_cycle_all_three_patterns);
     RUN_TEST(test_selector_starts_from_saved_pattern);
+    RUN_TEST(test_hud_dims_at_night_only);
     return UNITY_END();
 }

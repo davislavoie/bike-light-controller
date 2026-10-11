@@ -165,6 +165,16 @@ private:
     uint32_t lastEntry_ = 0;
 };
 
+// HUD LEDs (turn + battery bar): full brightness in daytime (headlight off, or a flasher
+// strobe); at night (ON or steady + pulse), dimmer the higher the headlight is set.
+// Out of PWM_RANGE, per LOW/MED/HIGH.
+constexpr uint16_t HUD_DUTY[3] = {600, 300, 100};
+
+inline uint16_t hudDuty(HeadMode m, Brightness b, StrobePattern p) {
+    bool night = m == HeadMode::On || (m == HeadMode::Strobe && p == StrobePattern::SteadyPulse);
+    return night ? HUD_DUTY[(uint8_t)b] : PWM_RANGE;
+}
+
 inline uint16_t headDuty(HeadMode m, Brightness b, StrobePattern p, uint32_t now) {
     if (m == HeadMode::Off) return 0;
     if (m == HeadMode::On) return brightnessDuty(b);
