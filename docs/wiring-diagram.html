@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bike Light Controller Wiring</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:  #f5f5f5;
+      --color-ink:    #2d3142;
+      --color-muted:  #4f5d75;
+      --color-accent: #eb6c36;
+      --font-sans:    'Geist', system-ui, sans-serif;
+      --font-serif:   'Instrument Serif', serif;
+      --font-mono:    'Geist Mono', ui-monospace, monospace;
+    }
+    body { font-family: var(--font-sans); background: var(--color-paper); color: var(--color-ink);
+           padding: 3rem 2rem; display: flex; justify-content: center; }
+    .frame { max-width: 1280px; width: 100%; }
+    .diagram-container { width: 100%; overflow-x: auto; }
+    .eyebrow { font-family: var(--font-mono); font-size: 0.66rem; font-weight: 500; letter-spacing: 0.18em;
+               text-transform: uppercase; color: var(--color-muted); margin-bottom: 0.5rem; }
+    h1 { font-family: var(--font-serif); font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem); font-weight: 400;
+         letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 1.5rem; }
+    h2 { font-family: var(--font-serif); font-weight: 400; font-size: 1.4rem; margin: 2.5rem 0 0.75rem; }
+    svg { width: 100%; min-width: 1280px; display: block; }
+    .grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 1.5rem; align-items: start; }
+    @media (max-width: 820px) { .grid { grid-template-columns: 1fr; } }
+    .card { background: #fff; border: 1px solid rgba(45,49,66,0.12); border-radius: 6px; padding: 1.25rem; overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: 0.82rem; }
+    th { font-family: var(--font-mono); font-size: 0.62rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase;
+         color: var(--color-muted); text-align: left; padding: 0 0.6rem 0.5rem 0; border-bottom: 1px solid rgba(45,49,66,0.15); }
+    td { padding: 0.4rem 0.6rem 0.4rem 0; border-bottom: 1px solid rgba(45,49,66,0.07); vertical-align: top; }
+    td.m { font-family: var(--font-mono); font-size: 0.76rem; white-space: nowrap; }
+    td.pin { color: var(--color-accent); }
+    ul { padding-left: 1.1rem; font-size: 0.86rem; line-height: 1.5; }
+    li + li { margin-top: 0.55rem; }
+    code { font-family: var(--font-mono); font-size: 0.78rem; }
+    @media print { .diagram-container { overflow-x: visible; } svg { min-width: 0; } }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Architecture · Wiring</p>
+    <h1>Bike light controller: KB2040 wiring</h1>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1280 712" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="wiring-diagram-title wiring-diagram-desc">
+        <title id="wiring-diagram-title">Bike light controller: KB2040 wiring</title>
+        <desc id="wiring-diagram-desc">An M12 battery feeds a fused 12V rail that powers a PWM headlight, a rear lamp with high-side brake and turn switches, and a 5V regulator for the KB2040, which watches battery voltage for a firmware cutoff, reads brake, headlight and brightness inputs on the handlebar and drives the turn and battery indicator LEDs.</desc>
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+          <marker id="arrow-ink" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2d3142"/></marker>
+          <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+        </defs>
+        <rect width="100%" height="100%" fill="#f5f5f5"/>
+        <rect x="316" y="40" width="932" height="112" rx="8" fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+        <rect x="729.0" y="44" width="106" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="782.0" y="53" fill="rgba(45,49,66,0.40)" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.14em">HANDLEBAR · HUD</text>
+        <rect x="24" y="184" width="248" height="400" rx="8" fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+        <rect x="125.0" y="188" width="46" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="148.0" y="197" fill="rgba(45,49,66,0.40)" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.14em">POWER</text>
+        <rect x="320" y="344" width="924" height="240" rx="8" fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+        <rect x="735.0" y="348" width="94" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="782.0" y="357" fill="rgba(45,49,66,0.40)" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.14em">LIGHT DRIVERS</text>
+        <line x1="158" y1="280" x2="158" y2="312" stroke="#2d3142" stroke-width="2" marker-end="url(#arrow-ink)"/>
+        <path d="M 60,344 H 44 Q 36,344 36,352 V 608 Q 36,616 44,616 H 1122 Q 1130,616 1130,608 V 568" fill="none" stroke="#2d3142" stroke-width="2" marker-end="url(#arrow-ink)"/>
+        <line x1="36" y1="440" x2="60" y2="440" stroke="#2d3142" stroke-width="2" marker-end="url(#arrow-ink)"/>
+        <circle cx="36" cy="440" r="3" fill="#2d3142"/>
+        <line x1="36" y1="536" x2="60" y2="536" stroke="#2d3142" stroke-width="2" marker-end="url(#arrow-ink)"/>
+        <circle cx="36" cy="536" r="3" fill="#2d3142"/>
+        <line x1="434" y1="616" x2="434" y2="568" stroke="#2d3142" stroke-width="2" marker-end="url(#arrow-ink)"/>
+        <circle cx="434" cy="616" r="3" fill="#2d3142"/>
+        <path d="M 256,440 H 276 Q 284,440 284,432 V 256 Q 284,248 292,248 H 324" fill="none" stroke="#2d3142" stroke-width="1.2" marker-end="url(#arrow-ink)"/>
+        <path d="M 256,536 H 288 Q 296,536 296,528 V 288 Q 296,280 304,280 H 324" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="392" y1="136" x2="392" y2="216" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="548" y1="136" x2="548" y2="216" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="704" y1="136" x2="704" y2="216" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="860" y1="136" x2="860" y2="216" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="1016" y1="216" x2="1016" y2="136" stroke="#2e5aa8" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+        <line x1="1172" y1="216" x2="1172" y2="136" stroke="#2e5aa8" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+        <line x1="434" y1="312" x2="434" y2="376" stroke="#2e5aa8" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+        <line x1="434" y1="440" x2="434" y2="504" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="666" y1="312" x2="666" y2="376" stroke="#2e5aa8" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+        <line x1="666" y1="440" x2="666" y2="504" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="898" y1="312" x2="898" y2="376" stroke="#2e5aa8" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+        <line x1="898" y1="440" x2="898" y2="504" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="1130" y1="312" x2="1130" y2="376" stroke="#2e5aa8" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+        <line x1="1130" y1="440" x2="1130" y2="504" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <rect x="442.0" y="466" width="82" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="483" y="475" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">SINKS LAMP −</text>
+        <rect x="442.0" y="582" width="70" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="477" y="591" fill="#2d3142" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">LAMP + 12V</text>
+        <rect x="1052.0" y="582" width="70" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="1087" y="591" fill="#2d3142" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">TAIL · WHT</text>
+        <rect x="674.0" y="466" width="88" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="718" y="475" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HIGH-SIDE 12V</text>
+        <rect x="155.0" y="596" width="82" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="196" y="605" fill="#2d3142" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">VBAT 9–12.6V</text>
+        <rect x="60" y="216" width="196" height="64" rx="6" fill="#f5f5f5"/>
+        <rect x="60" y="216" width="196" height="64" rx="6" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+        <rect x="68" y="224" width="28" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.22)" stroke-width="0.8"/>
+        <text x="82.0" y="233" fill="#7a8399" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">BATT</text>
+        <text x="158.0" y="252.0" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">M12 battery</text>
+        <text x="158.0" y="268.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">3Ah · 9.0–12.6V</text>
+        <rect x="60" y="312" width="196" height="64" rx="6" fill="#f5f5f5"/>
+        <rect x="60" y="312" width="196" height="64" rx="6" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+        <rect x="68" y="320" width="23" height="12" rx="2" fill="transparent" stroke="rgba(79,93,117,0.50)" stroke-width="0.8"/>
+        <text x="79.5" y="329" fill="#4f5d75" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">PWR</text>
+        <text x="158.0" y="348.0" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Master switch</text>
+        <text x="158.0" y="364.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">5A fuse · Wagos · cross tube</text>
+        <rect x="60" y="408" width="196" height="64" rx="6" fill="#f5f5f5"/>
+        <rect x="60" y="408" width="196" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <rect x="68" y="416" width="23" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+        <text x="79.5" y="425" fill="#2d3142" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">REG</text>
+        <text x="158.0" y="444.0" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">5V regulator</text>
+        <text x="158.0" y="460.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">K7805W-500R3 · 0.5A</text>
+        <rect x="60" y="504" width="196" height="64" rx="6" fill="#f5f5f5"/>
+        <rect x="60" y="504" width="196" height="64" rx="6" fill="rgba(235,108,54,0.05)" stroke="rgba(235,108,54,0.50)" stroke-width="1" stroke-dasharray="4,4"/>
+        <rect x="68" y="512" width="23" height="12" rx="2" fill="transparent" stroke="rgba(235,108,54,0.50)" stroke-width="0.8"/>
+        <text x="79.5" y="521" fill="#eb6c36" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">LVC</text>
+        <text x="158.0" y="540.0" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">VBAT sense</text>
+        <text x="158.0" y="556.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">100k / 22k · FW cutoff</text>
+        <rect x="324" y="72" width="136" height="64" rx="6" fill="#f5f5f5"/>
+        <rect x="324" y="72" width="136" height="64" rx="6" fill="rgba(79,93,117,0.10)" stroke="#7a8399" stroke-width="1"/>
+        <rect x="332" y="80" width="18" height="12" rx="2" fill="transparent" stroke="rgba(122,131,153,0.40)" stroke-width="0.8"/>
+        <text x="341.0" y="89" fill="#7a8399" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">IN</text>
+        <text x="392.0" y="108.0" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Brake lever L</text>
+        <text x="392.0" y="124.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">NC switch · pull-up</text>
+        <rect x="480" y="72" width="136" height="64" rx="6" fill="#f5f5f5"/>
+        <rect x="480" y="72" width="136" height="64" rx="6" fill="rgba(79,93,117,0.10)" stroke="#7a8399" stroke-width="1"/>
+        <rect x="488" y="80" width="18" height="12" rx="2" fill="transparent" stroke="rgba(122,131,153,0.40)" stroke-width="0.8"/>
+        <text x="497.0" y="89" fill="#7a8399" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">IN</text>
+        <text x="548.0" y="108.0" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Brake lever R</text>
+        <text x="548.0" y="124.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">NC switch · pull-up</text>
+        <rect x="636" y="72" width="136" height="64" rx="6" fill="#f5f5f5"/>
+        <rect x="636" y="72" width="136" height="64" rx="6" fill="rgba(79,93,117,0.10)" stroke="#7a8399" stroke-width="1"/>
+        <rect x="644" y="80" width="18" height="12" rx="2" fill="transparent" stroke="rgba(122,131,153,0.40)" stroke-width="0.8"/>
+        <text x="653.0" y="89" fill="#7a8399" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">IN</text>
+        <text x="704.0" y="108.0" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Headlight switch</text>
+        <text x="704.0" y="124.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">ON · OFF · STROBE</text>
+        <rect x="792" y="72" width="136" height="64" rx="6" fill="#f5f5f5"/>
+        <rect x="792" y="72" width="136" height="64" rx="6" fill="rgba(79,93,117,0.10)" stroke="#7a8399" stroke-width="1"/>
+        <rect x="800" y="80" width="18" height="12" rx="2" fill="transparent" stroke="rgba(122,131,153,0.40)" stroke-width="0.8"/>
+        <text x="809.0" y="89" fill="#7a8399" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">IN</text>
+        <text x="860.0" y="108.0" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Brightness</text>
+        <text x="860.0" y="124.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">LOW · MED · HIGH</text>
+        <rect x="948" y="72" width="136" height="64" rx="6" fill="#f5f5f5"/>
+        <rect x="948" y="72" width="136" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <rect x="956" y="80" width="23" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+        <text x="967.5" y="89" fill="#2d3142" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">OUT</text>
+        <text x="1016.0" y="108.0" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Turn indicators</text>
+        <text x="1016.0" y="124.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">amber L · R · 330Ω</text>
+        <rect x="1104" y="72" width="136" height="64" rx="6" fill="#f5f5f5"/>
+        <rect x="1104" y="72" width="136" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <rect x="1112" y="80" width="23" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+        <text x="1123.5" y="89" fill="#2d3142" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">OUT</text>
+        <text x="1172.0" y="108.0" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Battery gauge</text>
+        <text x="1172.0" y="124.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">4 red LEDs · bar</text>
+        <rect x="336" y="376" width="196" height="64" rx="6" fill="#f5f5f5"/>
+        <rect x="336" y="376" width="196" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <rect x="344" y="384" width="18" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+        <text x="353.0" y="393" fill="#2d3142" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">Q1</text>
+        <text x="434.0" y="412.0" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Headlight driver</text>
+        <text x="434.0" y="428.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">IRLB3813 N-ch · low-side PWM</text>
+        <rect x="568" y="376" width="196" height="64" rx="6" fill="#f5f5f5"/>
+        <rect x="568" y="376" width="196" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <rect x="576" y="384" width="18" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+        <text x="585.0" y="393" fill="#2d3142" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">U3</text>
+        <text x="666.0" y="412.0" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Brake switch</text>
+        <text x="666.0" y="428.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">TLP241A photorelay</text>
+        <rect x="800" y="376" width="196" height="64" rx="6" fill="#f5f5f5"/>
+        <rect x="800" y="376" width="196" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <rect x="808" y="384" width="18" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+        <text x="817.0" y="393" fill="#2d3142" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">U4</text>
+        <text x="898.0" y="412.0" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Left turn switch</text>
+        <text x="898.0" y="428.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">TLP241A photorelay</text>
+        <rect x="1032" y="376" width="196" height="64" rx="6" fill="#f5f5f5"/>
+        <rect x="1032" y="376" width="196" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <rect x="1040" y="384" width="18" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+        <text x="1049.0" y="393" fill="#2d3142" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">U5</text>
+        <text x="1130.0" y="412.0" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Right turn switch</text>
+        <text x="1130.0" y="428.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">TLP241A photorelay</text>
+        <rect x="336" y="504" width="196" height="64" rx="6" fill="#f5f5f5"/>
+        <rect x="336" y="504" width="196" height="64" rx="6" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+        <rect x="344" y="512" width="28" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.22)" stroke-width="0.8"/>
+        <text x="358.0" y="521" fill="#7a8399" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">LOAD</text>
+        <text x="434.0" y="540.0" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Headlight</text>
+        <text x="434.0" y="556.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">2-wire · ≤1.5A · PWM</text>
+        <rect x="568" y="504" width="660" height="64" rx="6" fill="#f5f5f5"/>
+        <rect x="568" y="504" width="660" height="64" rx="6" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+        <rect x="576" y="512" width="28" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.22)" stroke-width="0.8"/>
+        <text x="590.0" y="521" fill="#7a8399" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">LOAD</text>
+        <text x="898.0" y="540.0" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Rear lamp: tail · brake · turn L · turn R</text>
+        <text x="898.0" y="556.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">tail + GND on Wagos · signals via J1 · on/off only, lamp runs its own patterns</text>
+        <rect x="324" y="216" width="916" height="96" rx="6" fill="#f5f5f5"/>
+        <rect x="324" y="216" width="916" height="96" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1"/>
+        <rect x="332" y="224" width="23" height="12" rx="2" fill="transparent" stroke="rgba(235,108,54,0.50)" stroke-width="0.8"/>
+        <text x="343.5" y="233" fill="#eb6c36" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">MCU</text>
+        <text x="782.0" y="262.0" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Adafruit KB2040</text>
+        <text x="782.0" y="278.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">RP2040 · 3V3 logic · 5V in on RAW</text>
+        <text x="392" y="232" fill="#eb6c36" font-size="8" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GP2</text>
+        <text x="548" y="232" fill="#eb6c36" font-size="8" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GP3</text>
+        <text x="704" y="232" fill="#eb6c36" font-size="8" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GP4 / GP5</text>
+        <text x="860" y="232" fill="#eb6c36" font-size="8" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GP26 / GP28</text>
+        <text x="1016" y="232" fill="#eb6c36" font-size="8" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GP0 / GP1</text>
+        <text x="1172" y="232" fill="#eb6c36" font-size="8" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GP10/18/19/20</text>
+        <text x="434" y="304" fill="#eb6c36" font-size="8" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GP6</text>
+        <text x="666" y="304" fill="#eb6c36" font-size="8" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GP7</text>
+        <text x="898" y="304" fill="#eb6c36" font-size="8" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GP8</text>
+        <text x="1130" y="304" fill="#eb6c36" font-size="8" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GP9</text>
+        <text x="332" y="251" fill="#eb6c36" font-size="8" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="start" letter-spacing="0.06em">RAW 5V</text>
+        <text x="332" y="283" fill="#eb6c36" font-size="8" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="start" letter-spacing="0.06em">A1 · GP27</text>
+        <line x1="24" y1="648" x2="1256" y2="648" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+        <text x="24" y="664" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.18em">LEGEND</text>
+        <rect x="24" y="680" width="14" height="10" rx="2" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1"/>
+        <text x="44" y="688" fill="#4f5d75" font-size="8.5" font-family="'Geist', sans-serif">Microcontroller</text>
+        <rect x="146" y="680" width="14" height="10" rx="2" fill="rgba(235,108,54,0.05)" stroke="rgba(235,108,54,0.50)" stroke-width="1" stroke-dasharray="4,4"/>
+        <text x="166" y="688" fill="#4f5d75" font-size="8.5" font-family="'Geist', sans-serif">Low-voltage cutoff</text>
+        <rect x="283" y="680" width="14" height="10" rx="2" fill="rgba(79,93,117,0.10)" stroke="#7a8399" stroke-width="1"/>
+        <text x="303" y="688" fill="#4f5d75" font-size="8.5" font-family="'Geist', sans-serif">Rider input</text>
+        <rect x="384" y="680" width="14" height="10" rx="2" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="404" y="688" fill="#4f5d75" font-size="8.5" font-family="'Geist', sans-serif">Driver / indicator</text>
+        <rect x="521" y="680" width="14" height="10" rx="2" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+        <text x="541" y="688" fill="#4f5d75" font-size="8.5" font-family="'Geist', sans-serif">Power switching</text>
+        <rect x="643" y="680" width="14" height="10" rx="2" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+        <text x="663" y="688" fill="#4f5d75" font-size="8.5" font-family="'Geist', sans-serif">Battery / lamp</text>
+        <line x1="759" y1="685" x2="787" y2="685" stroke="#2d3142" stroke-width="2" marker-end="url(#arrow-ink)"/>
+        <text x="795" y="688" fill="#4f5d75" font-size="8.5" font-family="'Geist', sans-serif">12V fused rail</text>
+        <line x1="887" y1="685" x2="915" y2="685" stroke="#2d3142" stroke-width="1.2" marker-end="url(#arrow-ink)"/>
+        <text x="923" y="688" fill="#4f5d75" font-size="8.5" font-family="'Geist', sans-serif">5V supply</text>
+        <line x1="989" y1="685" x2="1017" y2="685" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <text x="1025" y="688" fill="#4f5d75" font-size="8.5" font-family="'Geist', sans-serif">Signal / sense</text>
+        <line x1="1117" y1="685" x2="1145" y2="685" stroke="#2e5aa8" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+        <text x="1153" y="688" fill="#4f5d75" font-size="8.5" font-family="'Geist', sans-serif">MCU output</text>
+      </svg>
+    </div>
+
+    <div class="grid">
+      <div>
+        <h2>Pin assignment</h2>
+        <div class="card">
+          <table>
+            <tr><th>Board pin</th><th>GPIO</th><th>Function</th><th>Mode</th></tr>
+            <tr><td class="m">TX</td><td class="m pin">GP0</td><td>HUD left-turn LED</td><td class="m">PWM out</td></tr>
+            <tr><td class="m">RX</td><td class="m pin">GP1</td><td>HUD right-turn LED</td><td class="m">PWM out</td></tr>
+            <tr><td class="m">D2</td><td class="m pin">GP2</td><td>Brake switch, left lever (NC)</td><td class="m">In, pull-up</td></tr>
+            <tr><td class="m">D3</td><td class="m pin">GP3</td><td>Brake switch, right lever (NC)</td><td class="m">In, pull-up</td></tr>
+            <tr><td class="m">D4</td><td class="m pin">GP4</td><td>Headlight switch: ON throw</td><td class="m">In, pull-up</td></tr>
+            <tr><td class="m">D5</td><td class="m pin">GP5</td><td>Headlight switch: STROBE throw</td><td class="m">In, pull-up</td></tr>
+            <tr><td class="m">D6</td><td class="m pin">GP6</td><td>Q1 gate: headlight (low-side)</td><td class="m">PWM out</td></tr>
+            <tr><td class="m">D7</td><td class="m pin">GP7</td><td>U3: rear brake (TLP241A)</td><td class="m">On/off</td></tr>
+            <tr><td class="m">D8</td><td class="m pin">GP8</td><td>U4: rear turn L (TLP241A)</td><td class="m">On/off</td></tr>
+            <tr><td class="m">D9</td><td class="m pin">GP9</td><td>U5: rear turn R (TLP241A)</td><td class="m">On/off</td></tr>
+            <tr><td class="m">D10</td><td class="m pin">GP10</td><td>HUD battery bar 1 (red)</td><td class="m">Out</td></tr>
+            <tr><td class="m">SCK</td><td class="m pin">GP18</td><td>HUD battery bar 2 (red)</td><td class="m">Out</td></tr>
+            <tr><td class="m">MOSI</td><td class="m pin">GP19</td><td>HUD battery bar 3 (red)</td><td class="m">Out</td></tr>
+            <tr><td class="m">MISO</td><td class="m pin">GP20</td><td>HUD battery bar 4 (red)</td><td class="m">Out</td></tr>
+            <tr><td class="m">A0</td><td class="m pin">GP26</td><td>Brightness switch: LOW throw</td><td class="m">In, pull-up</td></tr>
+            <tr><td class="m">A1</td><td class="m pin">GP27</td><td>VBAT divider (100k / 22k)</td><td class="m">ADC</td></tr>
+            <tr><td class="m">RAW</td><td class="m">n/a</td><td>5V in from K7805W regulator</td><td class="m">Power</td></tr>
+            <tr><td class="m">A2</td><td class="m pin">GP28</td><td>Brightness switch: HIGH throw</td><td class="m">In, pull-up</td></tr>
+            <tr><td class="m">A3</td><td class="m">GP29</td><td>Spare (also Stemma QT on GP12/13)</td><td class="m">n/a</td></tr>
+          </table>
+        </div>
+      </div>
+      <div>
+        <h2>Build notes</h2>
+        <div class="card">
+          <ul>
+            <li><b>Common ground.</b> Battery −, regulator GND, KB2040 GND, every MOSFET source and the HUD LED cathodes all tie together.</li>
+            <li><b>Headlight driver (Q1).</b> IRLB3813PbF (TO-220, logic-level, legs G-D-S), low-side: GP6 → 100Ω → gate, 10k gate → GND, source → GND, drain → headlight −, headlight + → 12V. PWM at 1–2kHz gives LOW/MED/HIGH and strobe; its large gate charge is why PWM stays at low kHz. Negligible heat at 1.5A, no heatsink.</li>
+            <li><b>Rear lamp drivers (U3–U5).</b> The lamp has one shared ground, so brake and turns are switched on the 12V side. Each is a Toshiba TLP241A photorelay (DIP-4, 40V / 2A): GPIO → 330Ω → pin 1, pin 2 → GND lights its LED, and the isolated output (pins 3/4) connects 12V to the lamp wire like a jumper. Set GP7–GP9 to 8mA drive in firmware. Up to 5ms switching, which is fine because these are on/off only, never PWM: the lamp's own electronics run the breathing, brake flash and sequential turn sweep. The firmware holds a turn output steady on while that blinker (or hazards) is active; the HUD turn LED blinks ~1.5Hz on its own timer.</li>
+            <li><b>Wiring and connectors.</b> Battery, master switch and 5A fuse on the cross tube; Wago lever nuts split 12V and GND. The rear lamp's white (tail) and black (GND) go straight to the Wagos, so the tail is on whenever the master switch is. One harness runs up to the handlebar box on <b>J1, Nano-Fit 2×3</b>: 1 +12V · 2 GND · 3 brake (red) · 4 turn (yellow) · 5 turn (green) · 6 GND. The headlight has its own <b>J2, Nano-Fit 1×2</b>; the different pin counts mean they can't be swapped. 22 AWG for power, 24 AWG for signals. The listing doesn't say which of yellow/green is left; touch each to 12V before crimping.</li>
+            <li><b>Brake levers.</b> NC switch from GPIO to GND, using the RP2040's internal pull-up (<code>INPUT_PULLUP</code>); firmware debounces it. At rest the pin reads LOW; a squeezed lever or a cut wire reads HIGH, so a broken wire fails safe with the brake light on.</li>
+            <li><b>Lever gestures.</b> Both levers squeezed → brake light at once. One lever held past the double-tap window → brake light. A tap is a squeeze under 250ms; a second tap within 400ms of the first is a double-tap (both are tunable constants). Double-tap one lever → toggle that blinker (manual cancel only; tapping the other side switches over). Double-tap both levers → toggle hazards; single-side taps are ignored while hazards are on, and braking still works.</li>
+            <li><b>Headlight switch.</b> ON-OFF-ON toggle: common → GND, throws → GP4 / GP5 with internal pull-ups. Both HIGH means off.</li>
+            <li><b>Brightness switch.</b> ON-OFF-ON toggle: common → GND, throws → GP26 (LOW) / GP28 (HIGH) with internal pull-ups; centre = MED. It only dims the headlight. Brake and turn signals always run at full brightness so drivers can see them.</li>
+            <li><b>Battery bar and cutoff (firmware).</b> A1 reads VBAT × 22/122, averaged, with ~0.1V hysteresis. 4 bars ≥11.7V · 3 bars 11.1–11.7V · 2 bars 10.6–11.1V · 1 bar 10.0–10.6V · 1 bar blinking below 10.0V (the rear lamp shuts itself off there). At 9.4V held for 5s every light goes off and the RP2040 sleeps (~2–3mA); turn the master switch off. With 5% divider resistors, calibrate once against a multimeter (or use 1% parts).</li>
+            <li><b>Regulator.</b> Mornsun K7805W-500R3: 6.5–36V in, 5V 0.5A switching module with the LM7805 pinout (1 VIN, 2 GND, 3 VOUT). It has plenty of headroom for the KB2040 and HUD LEDs, which draw well under 100mA.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
