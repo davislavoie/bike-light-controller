@@ -149,13 +149,75 @@ void test_brief_sag_does_not_cut_off() {
 }
 
 void test_headlight_duty() {
-    TEST_ASSERT_EQUAL_UINT16(0, headDuty(HeadMode::Off, Brightness::High, 0));
-    TEST_ASSERT_EQUAL_UINT16(PWM_RANGE / 5, headDuty(HeadMode::On, Brightness::Low, 0));
-    TEST_ASSERT_EQUAL_UINT16(PWM_RANGE / 2, headDuty(HeadMode::On, Brightness::Med, 0));
-    TEST_ASSERT_EQUAL_UINT16(PWM_RANGE / 5, headDuty(HeadMode::Strobe, Brightness::Low, 10));  // flash 1
-    TEST_ASSERT_EQUAL_UINT16(0, headDuty(HeadMode::Strobe, Brightness::Low, 100));             // gap
-    TEST_ASSERT_EQUAL_UINT16(PWM_RANGE, headDuty(HeadMode::Strobe, Brightness::High, 180));    // flash 2
-    TEST_ASSERT_EQUAL_UINT16(0, headDuty(HeadMode::Strobe, Brightness::High, 500));            // dark
+    const auto SP = StrobePattern::SteadyPulse, DF = StrobePattern::DaytimeFlash;
+    TEST_ASSERT_EQUAL_UINT16(0, headDuty(HeadMode::Off, Brightness::High, SP, 0));
+    TEST_ASSERT_EQUAL_UINT16(DUTY_LOW, headDuty(HeadMode::On, Brightness::Low, SP, 0));
+    TEST_ASSERT_EQUAL_UINT16(DUTY_MED, headDuty(HeadMode::On, Brightness::Med, DF, 0));
+}
+
+void test_steady_pulse() {
+    const auto SP = StrobePattern::SteadyPulse;
+    TEST_ASSERT_EQUAL_UINT16(DUTY_HIGH, headDuty(HeadMode::Strobe, Brightness::Low, SP, 50));   // pulse
+    TEST_ASSERT_EQUAL_UINT16(DUTY_LOW, headDuty(HeadMode::Strobe, Brightness::Low, SP, 500));   // steady base
+    TEST_ASSERT_EQUAL_UINT16(DUTY_MED, headDuty(HeadMode::Strobe, Brightness::Med, SP, 500));   // MED base
+    TEST_ASSERT_EQUAL_UINT16(PULSE_HIGH_BASE, headDuty(HeadMode::Strobe, Brightness::High, SP, 500));  // HIGH base = PULSE_HIGH_BASE
+}
+
+void test_daytime_flash() {
+    const auto DF = StrobePattern::DaytimeFlash;
+    TEST_ASSERT_EQUAL_UINT16(DUTY_HIGH, headDuty(HeadMode::Strobe, Brightness::High, DF, 40));  // flash
+    TEST_ASSERT_EQUAL_UINT16(0, headDuty(HeadMode::Strobe, Brightness::High, DF, 400));         // dark
+    TEST_ASSERT_EQUAL_UINT16(DUTY_LOW, headDuty(HeadMode::Strobe, Brightness::Low, DF, 760));   // next flash, follows switch
+}
+
+void test_double_flick_swaps_pattern() {
+    StrobeSelector s;
+    TEST_ASSERT_FALSE(s.update(0, HeadMode::Off));
+    TEST_ASSERT_FALSE(s.update(100, HeadMode::Strobe));   // first flick
+    TEST_ASSERT_FALSE(s.update(300, HeadMode::Off));
+    TEST_ASSERT_TRUE(s.update(600, HeadMode::Strobe));    // second within 1 s: swap
+    TEST_ASSERT_EQUAL(StrobePattern::DaytimeFlash, s.pattern());
+    s.update(700, HeadMode::Off);
+    TEST_ASSERT_FALSE(s.update(800, HeadMode::Strobe));   // a third flick starts a new pair
+    TEST_ASSERT_EQUAL(StrobePattern::DaytimeFlash, s.pattern());
+}
+
+void test_slow_flicks_do_not_swap() {
+    StrobeSelector s;
+    s.update(0, HeadMode::Strobe);
+    s.update(500, HeadMode::Off);
+    TEST_ASSERT_FALSE(s.update(1600, HeadMode::Strobe));  // 1.6 s later
+    TEST_ASSERT_EQUAL(StrobePattern::SteadyPulse, s.pattern());
+    s.update(1700, HeadMode::On);                         // passing through ON isn't a STROBE entry
+    TEST_ASSERT_FALSE(s.update(1800, HeadMode::On));
+    TEST_ASSERT_EQUAL(StrobePattern::SteadyPulse, s.pattern());
+}
+
+void test_double_flash() {
+    const auto DB = StrobePattern::DoubleFlash;
+    TEST_ASSERT_EQUAL_UINT16(DUTY_MED, headDuty(HeadMode::Strobe, Brightness::Med, DB, 10));    // flash 1
+    TEST_ASSERT_EQUAL_UINT16(0, headDuty(HeadMode::Strobe, Brightness::Med, DB, 100));          // gap
+    TEST_ASSERT_EQUAL_UINT16(DUTY_MED, headDuty(HeadMode::Strobe, Brightness::Med, DB, 180));   // flash 2
+    TEST_ASSERT_EQUAL_UINT16(0, headDuty(HeadMode::Strobe, Brightness::Med, DB, 500));          // dark
+}
+
+void test_flicks_cycle_all_three_patterns() {
+    StrobeSelector s;
+    uint32_t t = 0;
+    auto doubleFlick = [&]() {
+        s.update(t, HeadMode::Off); s.update(t + 100, HeadMode::Strobe);
+        s.update(t + 200, HeadMode::Off); s.update(t + 300, HeadMode::Strobe);
+        s.update(t + 400, HeadMode::Off);
+        t += 2000;
+    };
+    doubleFlick(); TEST_ASSERT_EQUAL(StrobePattern::DaytimeFlash, s.pattern());
+    doubleFlick(); TEST_ASSERT_EQUAL(StrobePattern::DoubleFlash, s.pattern());
+    doubleFlick(); TEST_ASSERT_EQUAL(StrobePattern::SteadyPulse, s.pattern());
+}
+
+void test_selector_starts_from_saved_pattern() {
+    StrobeSelector s(StrobePattern::DaytimeFlash);
+    TEST_ASSERT_EQUAL(StrobePattern::DaytimeFlash, s.pattern());
 }
 
 int main() {
@@ -174,5 +236,12 @@ int main() {
     RUN_TEST(test_cutoff_needs_five_seconds);
     RUN_TEST(test_brief_sag_does_not_cut_off);
     RUN_TEST(test_headlight_duty);
+    RUN_TEST(test_steady_pulse);
+    RUN_TEST(test_daytime_flash);
+    RUN_TEST(test_double_flick_swaps_pattern);
+    RUN_TEST(test_slow_flicks_do_not_swap);
+    RUN_TEST(test_double_flash);
+    RUN_TEST(test_flicks_cycle_all_three_patterns);
+    RUN_TEST(test_selector_starts_from_saved_pattern);
     return UNITY_END();
 }

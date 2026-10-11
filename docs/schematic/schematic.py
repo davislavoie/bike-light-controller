@@ -214,7 +214,7 @@ def sheet_hud():
 
 # --------------------------------------------------------------- sheet 4: light drivers
 def nfet_with_gate(d, drain_at, q, sig, rg, rpd):
-    """IRLB3813PbF (drain at drain_at) + 100Ω series gate resistor + 10k pulldown; source to GND."""
+    """IRLB3813PbF (drain at drain_at) + 22Ω series gate resistor + 10k pulldown; source to GND."""
     # .right() puts drain on top, source below, gate on the right
     d += (qq := elm.NFet(bulk=False).right().anchor("drain").at(drain_at))
     d += elm.Label().at((qq.source[0] - 0.3, qq.source[1] + 0.2)).label(
@@ -223,7 +223,7 @@ def nfet_with_gate(d, drain_at, q, sig, rg, rpd):
     gnd(d, d.here)
     d += elm.Line().right().at(qq.gate).length(0.4)
     d += (ng := elm.Dot())
-    d += elm.Resistor().right().label(f"{rg}\n100Ω", loc="top")
+    d += elm.Resistor().right().label(f"{rg}\n22Ω", loc="top")
     d += tag(sig).right()
     d += elm.Resistor().down().at(ng.center).label(f"{rpd}\n10k", loc="bot")
     gnd(d, d.here)
@@ -258,7 +258,7 @@ def sheet_drivers():
         net(d, pr.O3, out, "right", 0.75)
 
     note(d, (-2, -6.5),
-         "Headlight: low-side, PWM for dimming and strobe. Rear lamp: shared ground, so brake and turns are switched on the 12V side, fully on/off (no PWM);\n"
+         "Headlight: low-side, 25 kHz PWM for dimming and strobe (22 Ω gate resistor, 12 mA pin drive). Rear lamp: shared ground, so brake and turns are switched on the 12V side, fully on/off (no PWM);\n"
          "the lamp runs its own breathing / brake-flash / sequential patterns. REAR_* nets leave the box on J1 (sheet 1); tail and lamp ground sit on the Wagos.\n"
          "R6 holds the headlight off while the MCU is unpowered. TLP241A: 40 V / 2 A output, LED trigger ≤ 3 mA; set GP7–GP9 to 8 mA drive in firmware. Output pins 3/4 are interchangeable.")
     return d

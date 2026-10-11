@@ -119,20 +119,62 @@ enum class Brightness : uint8_t { Low, Med, High };
 
 constexpr uint16_t PWM_RANGE = 1000;
 
+// Headlight duty per brightness setting, out of PWM_RANGE. LEDs look far brighter
+// than their duty cycle, so LOW sits well under 20 %.
+constexpr uint16_t DUTY_LOW = 40;    // 4 %
+constexpr uint16_t DUTY_MED = 250;   // 25 %
+constexpr uint16_t DUTY_HIGH = PWM_RANGE;
+
 inline uint16_t brightnessDuty(Brightness b) {
-    return b == Brightness::Low ? PWM_RANGE / 5 : b == Brightness::Med ? PWM_RANGE / 2 : PWM_RANGE;
+    return b == Brightness::Low ? DUTY_LOW : b == Brightness::Med ? DUTY_MED : DUTY_HIGH;
 }
 
-// Double flash once a second: 60 on, 100 off, 60 on, rest off.
-inline bool strobeLit(uint32_t now) {
-    uint32_t t = now % 1000;
-    return t < 60 || (t >= 160 && t < 220);
-}
+// ---- Strobe patterns. Flick SW4 into STROBE twice within STROBE_FLICK_MS to step to the next.
+enum class StrobePattern : uint8_t { SteadyPulse, DaytimeFlash, DoubleFlash };
+constexpr uint8_t STROBE_PATTERN_COUNT = 3;
 
-inline uint16_t headDuty(HeadMode m, Brightness b, uint32_t now) {
+constexpr uint32_t STROBE_FLICK_MS = 1000;
+constexpr uint32_t PULSE_PERIOD_MS = 1000, PULSE_ON_MS = 100;  // steady + full-power pulse
+constexpr uint16_t PULSE_HIGH_BASE = 350;                      // steady level at HIGH (35 %), so the pulse still shows
+constexpr uint32_t FLASH_PERIOD_MS = 750, FLASH_ON_MS = 80;    // sharp flash, dark between
+constexpr uint32_t DOUBLE_PERIOD_MS = 1000;                    // 60 on, 100 off, 60 on, rest off
+
+class StrobeSelector {
+public:
+    explicit StrobeSelector(StrobePattern start = StrobePattern::SteadyPulse) : pattern_(start) {}
+
+    // Returns true when this call changed the pattern (so the caller can save it).
+    bool update(uint32_t now, HeadMode mode) {
+        bool entered = mode == HeadMode::Strobe && last_ != HeadMode::Strobe;
+        last_ = mode;
+        if (!entered) return false;
+        bool flick = hasEntry_ && now - lastEntry_ <= STROBE_FLICK_MS;
+        lastEntry_ = now;
+        hasEntry_ = !flick;  // a completed flick needs two fresh entries for the next one
+        if (flick) pattern_ = StrobePattern(((uint8_t)pattern_ + 1) % STROBE_PATTERN_COUNT);
+        return flick;
+    }
+
+    StrobePattern pattern() const { return pattern_; }
+
+private:
+    StrobePattern pattern_;
+    HeadMode last_ = HeadMode::Off;
+    bool hasEntry_ = false;
+    uint32_t lastEntry_ = 0;
+};
+
+inline uint16_t headDuty(HeadMode m, Brightness b, StrobePattern p, uint32_t now) {
     if (m == HeadMode::Off) return 0;
-    if (m == HeadMode::Strobe && !strobeLit(now)) return 0;
-    return brightnessDuty(b);
+    if (m == HeadMode::On) return brightnessDuty(b);
+    if (p == StrobePattern::SteadyPulse) {
+        // Base follows the brightness switch; HIGH uses PULSE_HIGH_BASE so the 100 % pulse stands out.
+        uint16_t base = b == Brightness::High ? PULSE_HIGH_BASE : brightnessDuty(b);
+        return now % PULSE_PERIOD_MS < PULSE_ON_MS ? DUTY_HIGH : base;
+    }
+    if (p == StrobePattern::DaytimeFlash) return now % FLASH_PERIOD_MS < FLASH_ON_MS ? brightnessDuty(b) : 0;
+    uint32_t t = now % DOUBLE_PERIOD_MS;
+    return t < 60 || (t >= 160 && t < 220) ? brightnessDuty(b) : 0;
 }
 
 }  // namespace bike

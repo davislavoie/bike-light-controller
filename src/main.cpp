@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include <hardware/gpio.h>
 #include <initializer_list>
+#include <EEPROM.h>
 #include <BikeLogic.h>
 
 using namespace bike;
@@ -22,7 +23,9 @@ constexpr uint8_t PIN_VSENSE = 27;                               // A1: VBAT x 2
 constexpr float VBAT_DIVIDER = 122.0f / 22.0f;
 constexpr float VBAT_CAL = 1.00f;
 
-constexpr uint32_t HEAD_PWM_HZ = 1000;     // low kHz: the IRLB3813 has a large gate charge
+// Above hearing range: audible PWM made the board's ceramic caps whine. The IRLB3813's
+// big gate charge needs fast edges at this rate: 12 mA pin drive + a 22 Ω gate resistor.
+constexpr uint32_t HEAD_PWM_HZ = 25000;
 constexpr uint32_t DEBOUNCE_MS = 20;
 constexpr uint32_t BATTERY_PERIOD_MS = 50;
 constexpr uint32_t HUD_TURN_PERIOD_MS = 667;  // ~1.5 Hz blink
@@ -50,6 +53,8 @@ Debounced brightLo{PIN_BRIGHT_LO}, brightHi{PIN_BRIGHT_HI};
 
 Levers levers;
 Battery battery;
+StrobeSelector strobeSel;
+constexpr int EEPROM_STROBE_ADDR = 0;  // remembered strobe pattern (0-2)
 Turn turn = Turn::Off;
 uint32_t lastBatteryAt = 0;
 
@@ -92,10 +97,15 @@ void setup() {
     // The TLP241A LEDs want ~6 mA through 330 Ω; the default 4 mA drive sags.
     for (uint8_t p : {PIN_REAR_BRAKE, PIN_REAR_TURN_L, PIN_REAR_TURN_R})
         gpio_set_drive_strength(p, GPIO_DRIVE_STRENGTH_8MA);
+    gpio_set_drive_strength(PIN_HEADLIGHT, GPIO_DRIVE_STRENGTH_12MA);
 
     analogWriteFreq(HEAD_PWM_HZ);
     analogWriteRange(PWM_RANGE);
     analogReadResolution(12);
+
+    EEPROM.begin(16);
+    uint8_t saved = EEPROM.read(EEPROM_STROBE_ADDR);
+    if (saved < STROBE_PATTERN_COUNT) strobeSel = StrobeSelector((StrobePattern)saved);
     allOutputsOff();
 }
 
@@ -119,7 +129,11 @@ void loop() {
     Brightness bright = lo ? Brightness::Low : hi ? Brightness::High : Brightness::Med;
 
     // ---- Outputs. The rear lamp flashes its own turn signal: hold the input steady.
-    analogWrite(PIN_HEADLIGHT, headDuty(mode, bright, now));
+    if (strobeSel.update(now, mode)) {  // two quick flicks into STROBE step to the next pattern
+        EEPROM.write(EEPROM_STROBE_ADDR, (uint8_t)strobeSel.pattern());
+        EEPROM.commit();
+    }
+    analogWrite(PIN_HEADLIGHT, headDuty(mode, bright, strobeSel.pattern(), now));
     digitalWrite(PIN_REAR_BRAKE, levers.brake());
     digitalWrite(PIN_REAR_TURN_L, leftOn(turn));
     digitalWrite(PIN_REAR_TURN_R, rightOn(turn));
@@ -137,7 +151,7 @@ void loop() {
     static uint32_t lastPrint = 0;
     if (now - lastPrint >= 1000) {
         lastPrint = now;
-        Serial.printf("vbat=%.2f bars=%u brake=%d turn=%u head=%u bright=%u\n", battery.volts(), bars,
-                      levers.brake(), (unsigned)turn, (unsigned)mode, (unsigned)bright);
+        Serial.printf("vbat=%.2f bars=%u brake=%d turn=%u head=%u bright=%u strobe=%u\n", battery.volts(), bars,
+                      levers.brake(), (unsigned)turn, (unsigned)mode, (unsigned)bright, (unsigned)strobeSel.pattern());
     }
 }
