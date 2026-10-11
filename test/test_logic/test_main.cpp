@@ -157,10 +157,12 @@ void test_headlight_duty() {
 
 void test_steady_pulse() {
     const auto SP = StrobePattern::SteadyPulse;
-    TEST_ASSERT_EQUAL_UINT16(DUTY_HIGH, headDuty(HeadMode::Strobe, Brightness::Low, SP, 50));   // pulse
-    TEST_ASSERT_EQUAL_UINT16(DUTY_LOW, headDuty(HeadMode::Strobe, Brightness::Low, SP, 500));   // steady base
-    TEST_ASSERT_EQUAL_UINT16(DUTY_MED, headDuty(HeadMode::Strobe, Brightness::Med, SP, 500));   // MED base
-    TEST_ASSERT_EQUAL_UINT16(PULSE_HIGH_BASE, headDuty(HeadMode::Strobe, Brightness::High, SP, 500));  // HIGH base = PULSE_HIGH_BASE
+    struct { Brightness b; uint16_t steady, pulse; } cases[] = {
+        {Brightness::Low, 50, 250}, {Brightness::Med, 250, 500}, {Brightness::High, 500, 1000}};
+    for (auto c : cases) {
+        TEST_ASSERT_EQUAL_UINT16(c.pulse, headDuty(HeadMode::Strobe, c.b, SP, 50));    // pulse
+        TEST_ASSERT_EQUAL_UINT16(c.steady, headDuty(HeadMode::Strobe, c.b, SP, 500));  // steady
+    }
 }
 
 void test_daytime_flash() {

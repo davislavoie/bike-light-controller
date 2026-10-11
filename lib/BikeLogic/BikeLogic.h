@@ -121,7 +121,7 @@ constexpr uint16_t PWM_RANGE = 1000;
 
 // Headlight duty per brightness setting, out of PWM_RANGE. LEDs look far brighter
 // than their duty cycle, so LOW sits well under 20 %.
-constexpr uint16_t DUTY_LOW = 40;    // 4 %
+constexpr uint16_t DUTY_LOW = 50;    // 5 %
 constexpr uint16_t DUTY_MED = 250;   // 25 %
 constexpr uint16_t DUTY_HIGH = PWM_RANGE;
 
@@ -135,7 +135,8 @@ constexpr uint8_t STROBE_PATTERN_COUNT = 3;
 
 constexpr uint32_t STROBE_FLICK_MS = 1000;
 constexpr uint32_t PULSE_PERIOD_MS = 1000, PULSE_ON_MS = 100;  // steady + full-power pulse
-constexpr uint16_t PULSE_HIGH_BASE = 350;                      // steady level at HIGH (35 %), so the pulse still shows
+// Steady + pulse: {steady, pulse} per brightness, out of PWM_RANGE (LOW 5->25 %, MED 25->50 %, HIGH 50->100 %).
+constexpr uint16_t PULSE_LEVELS[3][2] = {{DUTY_LOW, 250}, {250, 500}, {500, 1000}};
 constexpr uint32_t FLASH_PERIOD_MS = 750, FLASH_ON_MS = 80;    // sharp flash, dark between
 constexpr uint32_t DOUBLE_PERIOD_MS = 1000;                    // 60 on, 100 off, 60 on, rest off
 
@@ -168,9 +169,8 @@ inline uint16_t headDuty(HeadMode m, Brightness b, StrobePattern p, uint32_t now
     if (m == HeadMode::Off) return 0;
     if (m == HeadMode::On) return brightnessDuty(b);
     if (p == StrobePattern::SteadyPulse) {
-        // Base follows the brightness switch; HIGH uses PULSE_HIGH_BASE so the 100 % pulse stands out.
-        uint16_t base = b == Brightness::High ? PULSE_HIGH_BASE : brightnessDuty(b);
-        return now % PULSE_PERIOD_MS < PULSE_ON_MS ? DUTY_HIGH : base;
+        const uint16_t* lv = PULSE_LEVELS[(uint8_t)b];
+        return now % PULSE_PERIOD_MS < PULSE_ON_MS ? lv[1] : lv[0];
     }
     if (p == StrobePattern::DaytimeFlash) return now % FLASH_PERIOD_MS < FLASH_ON_MS ? brightnessDuty(b) : 0;
     uint32_t t = now % DOUBLE_PERIOD_MS;
