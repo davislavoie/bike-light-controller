@@ -175,6 +175,13 @@ inline uint16_t hudDuty(HeadMode m, Brightness b, StrobePattern p) {
     return night ? HUD_DUTY[(uint8_t)b] : PWM_RANGE;
 }
 
+// On/off timing of the two daytime flasher patterns.
+inline bool flashOn(StrobePattern p, uint32_t now) {
+    if (p == StrobePattern::DaytimeFlash) return now % FLASH_PERIOD_MS < FLASH_ON_MS;
+    uint32_t t = now % DOUBLE_PERIOD_MS;
+    return t < 60 || (t >= 160 && t < 220);
+}
+
 inline uint16_t headDuty(HeadMode m, Brightness b, StrobePattern p, uint32_t now) {
     if (m == HeadMode::Off) return 0;
     if (m == HeadMode::On) return brightnessDuty(b);
@@ -182,9 +189,12 @@ inline uint16_t headDuty(HeadMode m, Brightness b, StrobePattern p, uint32_t now
         const uint16_t* lv = PULSE_LEVELS[(uint8_t)b];
         return now % PULSE_PERIOD_MS < PULSE_ON_MS ? lv[1] : lv[0];
     }
-    if (p == StrobePattern::DaytimeFlash) return now % FLASH_PERIOD_MS < FLASH_ON_MS ? brightnessDuty(b) : 0;
-    uint32_t t = now % DOUBLE_PERIOD_MS;
-    return t < 60 || (t >= 160 && t < 220) ? brightnessDuty(b) : 0;
+    return flashOn(p, now) ? brightnessDuty(b) : 0;
+}
+
+// Rear brake light: solid while braking; otherwise it flashes in step with a daytime strobe.
+inline bool rearBrakeOn(bool braking, HeadMode m, StrobePattern p, uint32_t now) {
+    return braking || (m == HeadMode::Strobe && p != StrobePattern::SteadyPulse && flashOn(p, now));
 }
 
 }  // namespace bike

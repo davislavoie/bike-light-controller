@@ -133,7 +133,7 @@ void loop() {
         EEPROM.commit();
     }
     analogWrite(PIN_HEADLIGHT, headDuty(mode, bright, strobeSel.pattern(), now));
-    digitalWrite(PIN_REAR_BRAKE, levers.brake());
+    digitalWrite(PIN_REAR_BRAKE, rearBrakeOn(levers.brake(), mode, strobeSel.pattern(), now));
     digitalWrite(PIN_REAR_TURN_L, leftOn(turn));
     digitalWrite(PIN_REAR_TURN_R, rightOn(turn));
 

@@ -232,6 +232,16 @@ void test_hud_dims_at_night_only() {
     TEST_ASSERT_TRUE(HUD_DUTY[0] > HUD_DUTY[1] && HUD_DUTY[1] > HUD_DUTY[2]);
 }
 
+void test_rear_brake_flashes_with_daytime_strobe() {
+    const auto SP = StrobePattern::SteadyPulse, DF = StrobePattern::DaytimeFlash, DB = StrobePattern::DoubleFlash;
+    TEST_ASSERT_TRUE(rearBrakeOn(false, HeadMode::Strobe, DF, 40));    // flash
+    TEST_ASSERT_FALSE(rearBrakeOn(false, HeadMode::Strobe, DF, 400));  // dark
+    TEST_ASSERT_TRUE(rearBrakeOn(true, HeadMode::Strobe, DF, 400));    // braking overrides: solid
+    TEST_ASSERT_TRUE(rearBrakeOn(false, HeadMode::Strobe, DB, 180));   // double flash, second flash
+    TEST_ASSERT_FALSE(rearBrakeOn(false, HeadMode::Strobe, SP, 50));   // night strobe: no flashing
+    TEST_ASSERT_FALSE(rearBrakeOn(false, HeadMode::On, DF, 40));       // headlight ON: no flashing
+}
+
 int main() {
     UNITY_BEGIN();
     RUN_TEST(test_both_levers_brake_immediately);
@@ -256,5 +266,6 @@ int main() {
     RUN_TEST(test_flicks_cycle_all_three_patterns);
     RUN_TEST(test_selector_starts_from_saved_pattern);
     RUN_TEST(test_hud_dims_at_night_only);
+    RUN_TEST(test_rear_brake_flashes_with_daytime_strobe);
     return UNITY_END();
 }
