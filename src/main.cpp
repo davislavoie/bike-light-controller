@@ -122,7 +122,8 @@ void loop() {
     }
 
     // ---- Levers -> brake + blinker gestures
-    turn = applyGesture(turn, levers.update(now, brakeL.read(now), brakeR.read(now)));
+    // TEMP: the right lever on the test bench has a NO switch, so its reading is inverted.
+    turn = applyGesture(turn, levers.update(now, brakeL.read(now), !brakeR.read(now)));
 
     // ---- Headlight switches (active LOW)
     bool on = !headOn.read(now), strobe = !headStrobe.read(now);
