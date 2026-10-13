@@ -10,11 +10,14 @@ using namespace bike;
 
 // ---- Pins (see docs/wiring-diagram.html)
 constexpr uint8_t PIN_LED_TURN_L = 0, PIN_LED_TURN_R = 1;
-constexpr uint8_t PIN_BRAKE_L = 2, PIN_BRAKE_R = 3;              // NC to GND: HIGH = squeezed
+// TEMP (2026-10-12): GP2/GP3 are shorted to GND inside the current KB2040. Brakes moved to
+// GP29 (A3) and GP20 (bar 4's pin) until the replacement board arrives; then go back to
+// PIN_BRAKE_L = 2, PIN_BRAKE_R = 3 and PIN_BATT_BAR = {10, 18, 19, 20}.
+constexpr uint8_t PIN_BRAKE_L = 29, PIN_BRAKE_R = 20;            // NC to GND: HIGH = squeezed
 constexpr uint8_t PIN_HEAD_ON = 4, PIN_HEAD_STROBE = 5;          // ON-OFF-ON to GND
 constexpr uint8_t PIN_HEADLIGHT = 6;                             // IRLB3813 gate, PWM
 constexpr uint8_t PIN_REAR_BRAKE = 7, PIN_REAR_TURN_L = 8, PIN_REAR_TURN_R = 9;  // TLP241A LEDs
-constexpr uint8_t PIN_BATT_BAR[4] = {10, 18, 19, 20};            // bar 1..4
+constexpr uint8_t PIN_BATT_BAR[] = {10, 18, 19};                 // bar 1..3 (TEMP: bar 4 lent to the right brake)
 constexpr uint8_t PIN_BRIGHT_LO = 26, PIN_BRIGHT_HI = 28;        // ON-OFF-ON to GND
 constexpr uint8_t PIN_VSENSE = 27;                               // A1: VBAT x 22/122
 
@@ -145,7 +148,7 @@ void loop() {
 
     uint8_t bars = battery.bars();
     bool warnPhase = now % BAR_WARN_PERIOD_MS < BAR_WARN_PERIOD_MS / 2;
-    for (uint8_t i = 0; i < 4; i++)
+    for (uint8_t i = 0; i < sizeof(PIN_BATT_BAR); i++)
         analogWrite(PIN_BATT_BAR[i], (bars == 0 ? (i == 0 && warnPhase) : i < bars) ? hud : 0);
 
     // ---- Serial status once a second (for VBAT_CAL and bench testing)

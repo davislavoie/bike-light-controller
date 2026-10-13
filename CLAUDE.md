@@ -27,3 +27,7 @@ Adafruit KB2040 (RP2040, arduino-pico core) running a bike's headlight, rear bra
 
 ## Conventions
 - Prefer firmware over extra parts, and through-hole, hand-solderable parts (perfboard build).
+
+## Temporary (2026-10-12)
+- The current KB2040 has GP2/GP3 shorted to GND internally. For bench testing, the brakes are on GP29 (left) and GP20 (right, borrowed from battery bar 4), so the bar shows 3 LEDs.
+- When the replacement KB2040 arrives, revert the TEMP block at the top of `src/main.cpp`. The schematic and page still show the real pinout.
