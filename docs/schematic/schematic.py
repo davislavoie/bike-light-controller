@@ -123,12 +123,14 @@ def sheet_power():
 
 # --------------------------------------------------------------- sheet 2: MCU
 # top -> bottom on each side
-LEFT = [("GP0", "LED_TURN_L"), ("GP1", "LED_TURN_R"), ("GP2", "BRAKE_L"), ("GP3", "BRAKE_R"),
+# TEST SETUP (2026-10-12): GP2/GP3 are shorted inside this KB2040, so the brakes moved to
+# GP29 and GP20 and battery bar 4 is off. Restore when the replacement board arrives.
+LEFT = [("GP0", "LED_TURN_L"), ("GP1", "LED_TURN_R"), ("GP2", None), ("GP3", None),
         ("GP4", "HEAD_ON"), ("GP5", "HEAD_STROBE"), ("GP6", "GATE_HEAD"), ("GP7", "CTL_BRAKE"),
         ("GP8", "CTL_TURN_L"), ("GP9", "CTL_TURN_R")]
 RIGHT = [("RAW", "+5V"), ("3V3", None), ("A0/GP26", "BRIGHT_LO"), ("A1/GP27", "VSENSE"),
-         ("A2/GP28", "BRIGHT_HI"), ("GP10", "LED_BATT_1"), ("GP18", "LED_BATT_2"), ("GP19", "LED_BATT_3"),
-         ("GP20", "LED_BATT_4"), ("GND", "GND")]
+         ("A2/GP28", "BRIGHT_HI"), ("A3/GP29", "BRAKE_L"), ("GP10", "LED_BATT_1"), ("GP18", "LED_BATT_2"),
+         ("GP19", "LED_BATT_3"), ("GP20", "BRAKE_R"), ("GND", "GND")]
 
 
 def sheet_mcu():
@@ -136,10 +138,13 @@ def sheet_mcu():
     # schemdraw stacks side pins bottom-up, so feed them reversed
     pins = ([elm.IcPin(name=p, side="left", anchorname=f"L{i}") for i, (p, _) in reversed(list(enumerate(LEFT)))] +
             [elm.IcPin(name=p, side="right", anchorname=f"R{i}") for i, (p, _) in reversed(list(enumerate(RIGHT)))])
-    d += (u := elm.Ic(pins=pins, pinspacing=0.75, edgepadH=0.5, size=(4, 8))
+    d += (u := elm.Ic(pins=pins, pinspacing=0.75, edgepadH=0.5, size=(4, 8.75))
           .label("U2  Adafruit KB2040\nRP2040", loc="top", ofst=0.2))
     for i, (_, n) in enumerate(LEFT):
-        net(d, getattr(u, f"L{i}"), n, "left", 0.75)
+        if n is None:
+            d += elm.NoConnect().at(getattr(u, f"L{i}"))
+        else:
+            net(d, getattr(u, f"L{i}"), n, "left", 0.75)
     for i, (_, n) in enumerate(RIGHT):
         at = getattr(u, f"R{i}")
         if n is None:
@@ -150,7 +155,8 @@ def sheet_mcu():
         else:
             net(d, at, n, "right", 0.75)
     note(d, (u.L9[0] - 3, u.L9[1] - 2),
-         "Spare: A3 (GP29), Stemma QT (GP12/GP13); 3V3 out unused. Onboard NeoPixel on GP17 is unused.")
+         "TEST SETUP: GP2/GP3 are shorted inside this KB2040 and left unconnected; brakes on GP29 (L) and GP20 (R), battery bar 4 off.\n"
+         "Spare: Stemma QT (GP12/GP13); 3V3 out unused. Onboard NeoPixel on GP17 is unused.")
     return d
 
 
@@ -196,7 +202,7 @@ def sheet_hud():
     y = -11
     leds = [("LED_TURN_L", "D1 amber", "330Ω"), ("LED_TURN_R", "D2 amber", "330Ω"),
             ("LED_BATT_1", "D3 red", "330Ω"), ("LED_BATT_2", "D4 red", "330Ω"),
-            ("LED_BATT_3", "D5 red", "330Ω"), ("LED_BATT_4", "D6 red", "330Ω")]
+            ("LED_BATT_3", "D5 red", "330Ω")]  # TEST SETUP: D6 (bar 4) off, its pin is BRAKE_R
     for i, (sig, name, r) in enumerate(leds):
         x = 2.5 + i * 3.4
         d += elm.Dot().at((x, y))
@@ -208,7 +214,7 @@ def sheet_hud():
     note(d, (-1, y - 7.4),
          "Inputs use the RP2040 internal pull-ups (INPUT_PULLUP) and are debounced in firmware. BRIGHT_LO and BRIGHT_HI both HIGH = medium.\n"
          "Brake = BRAKE_L and BRAKE_R both HIGH (levers squeezed, NC contacts open). A cut wire also reads HIGH, so the brake light fails on.\n"
-         "HEAD_ON and HEAD_STROBE both HIGH = headlight off.  D3–D6 form the 4-bar battery gauge (D3 = first bar). Use diffused LEDs behind the PETG window.")
+         "HEAD_ON and HEAD_STROBE both HIGH = headlight off.  D3–D5 form the battery gauge (D3 = first bar; TEST SETUP: bar 4 / D6 off). Use diffused LEDs behind the PETG window.")
     return d
 
 

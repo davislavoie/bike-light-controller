@@ -158,7 +158,7 @@
         <rect x="1112" y="80" width="23" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
         <text x="1123.5" y="89" fill="#2d3142" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">OUT</text>
         <text x="1172.0" y="108.0" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Battery gauge</text>
-        <text x="1172.0" y="124.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">4 red LEDs · bar</text>
+        <text x="1172.0" y="124.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">3 red LEDs · bar</text>
         <rect x="336" y="376" width="196" height="64" rx="6" fill="#f5f5f5"/>
         <rect x="336" y="376" width="196" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
         <rect x="344" y="384" width="18" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
@@ -201,12 +201,12 @@
         <text x="343.5" y="233" fill="#eb6c36" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">MCU</text>
         <text x="782.0" y="262.0" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Adafruit KB2040</text>
         <text x="782.0" y="278.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">RP2040 · 3V3 logic · 5V in on RAW</text>
-        <text x="392" y="232" fill="#eb6c36" font-size="8" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GP2</text>
-        <text x="548" y="232" fill="#eb6c36" font-size="8" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GP3</text>
+        <text x="392" y="232" fill="#eb6c36" font-size="8" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GP29</text>
+        <text x="548" y="232" fill="#eb6c36" font-size="8" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GP20</text>
         <text x="704" y="232" fill="#eb6c36" font-size="8" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GP4 / GP5</text>
         <text x="860" y="232" fill="#eb6c36" font-size="8" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GP26 / GP28</text>
         <text x="1016" y="232" fill="#eb6c36" font-size="8" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GP0 / GP1</text>
-        <text x="1172" y="232" fill="#eb6c36" font-size="8" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GP10/18/19/20</text>
+        <text x="1172" y="232" fill="#eb6c36" font-size="8" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GP10/18/19</text>
         <text x="434" y="304" fill="#eb6c36" font-size="8" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GP6</text>
         <text x="666" y="304" fill="#eb6c36" font-size="8" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GP7</text>
         <text x="898" y="304" fill="#eb6c36" font-size="8" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GP8</text>
@@ -246,8 +246,8 @@
             <tr><th>Board pin</th><th>GPIO</th><th>Function</th><th>Mode</th></tr>
             <tr><td class="m">TX</td><td class="m pin">GP0</td><td>HUD left-turn LED</td><td class="m">PWM out</td></tr>
             <tr><td class="m">RX</td><td class="m pin">GP1</td><td>HUD right-turn LED</td><td class="m">PWM out</td></tr>
-            <tr><td class="m">D2</td><td class="m pin">GP2</td><td>Brake switch, left lever (NC)</td><td class="m">In, pull-up</td></tr>
-            <tr><td class="m">D3</td><td class="m pin">GP3</td><td>Brake switch, right lever (NC)</td><td class="m">In, pull-up</td></tr>
+            <tr><td class="m">D2</td><td class="m">GP2</td><td>Unused: shorted inside this KB2040 (test setup)</td><td class="m">n/a</td></tr>
+            <tr><td class="m">D3</td><td class="m">GP3</td><td>Unused: shorted inside this KB2040 (test setup)</td><td class="m">n/a</td></tr>
             <tr><td class="m">D4</td><td class="m pin">GP4</td><td>Headlight switch: ON throw</td><td class="m">In, pull-up</td></tr>
             <tr><td class="m">D5</td><td class="m pin">GP5</td><td>Headlight switch: STROBE throw</td><td class="m">In, pull-up</td></tr>
             <tr><td class="m">D6</td><td class="m pin">GP6</td><td>Q1 gate: headlight (low-side)</td><td class="m">PWM out</td></tr>
@@ -257,12 +257,12 @@
             <tr><td class="m">D10</td><td class="m pin">GP10</td><td>HUD battery bar 1 (red)</td><td class="m">Out</td></tr>
             <tr><td class="m">SCK</td><td class="m pin">GP18</td><td>HUD battery bar 2 (red)</td><td class="m">Out</td></tr>
             <tr><td class="m">MOSI</td><td class="m pin">GP19</td><td>HUD battery bar 3 (red)</td><td class="m">Out</td></tr>
-            <tr><td class="m">MISO</td><td class="m pin">GP20</td><td>HUD battery bar 4 (red)</td><td class="m">Out</td></tr>
+            <tr><td class="m">MISO</td><td class="m pin">GP20</td><td>Brake switch, right lever (NC); bar 4 off (test setup)</td><td class="m">In, pull-up</td></tr>
             <tr><td class="m">A0</td><td class="m pin">GP26</td><td>Brightness switch: LOW throw</td><td class="m">In, pull-up</td></tr>
             <tr><td class="m">A1</td><td class="m pin">GP27</td><td>VBAT divider (100k / 22k)</td><td class="m">ADC</td></tr>
             <tr><td class="m">RAW</td><td class="m">n/a</td><td>5V in from K7805W regulator</td><td class="m">Power</td></tr>
             <tr><td class="m">A2</td><td class="m pin">GP28</td><td>Brightness switch: HIGH throw</td><td class="m">In, pull-up</td></tr>
-            <tr><td class="m">A3</td><td class="m">GP29</td><td>Spare (also Stemma QT on GP12/13)</td><td class="m">n/a</td></tr>
+            <tr><td class="m">A3</td><td class="m pin">GP29</td><td>Brake switch, left lever (NC) (test setup)</td><td class="m">In, pull-up</td></tr>
           </table>
         </div>
       </div>
@@ -270,6 +270,7 @@
         <h2>Build notes</h2>
         <div class="card">
           <ul>
+            <li><b>Test setup (2026-10-12).</b> GP2/GP3 are shorted to GND inside the current KB2040, so the brakes are on GP29 (left) and GP20 (right) and battery bar 4 is off. Spare pins left: Stemma QT (GP12/GP13). Go back to GP2/GP3 and four bars on the replacement board.</li>
             <li><b>Common ground.</b> Battery −, regulator GND, KB2040 GND, every MOSFET source and the HUD LED cathodes all tie together.</li>
             <li><b>Headlight driver (Q1).</b> IRLB3813PbF (TO-220, logic-level, legs G-D-S), low-side: GP6 → 22Ω → gate, 10k gate → GND, source → GND, drain → headlight −, headlight + → 12V. PWM at 25kHz (above hearing; lower rates made the board's ceramic caps whine) gives LOW 5% / MED 25% / HIGH 100%. STROBE has three patterns: <b>steady + pulse</b> (steady → pulse: 5→25% on LOW, 25→50% on MED, 50→100% on HIGH, pulse 0.1s every second), <b>daytime flasher</b> (80ms flash every 0.75s, dark between) and <b>double flash</b> (two quick flashes once a second). Flick SW4 into STROBE twice within 1s to step to the next; the choice is saved to flash and survives power-off. The 22Ω resistor and 12mA pin drive keep switching fast enough that the TO-220 only gets warm; check by touch at MED.</li>
             <li><b>Rear lamp drivers (U3–U5).</b> The lamp has one shared ground, so brake and turns are switched on the 12V side. Each is a Toshiba TLP241A photorelay (DIP-4, 40V / 2A): GPIO → 330Ω → pin 1, pin 2 → GND lights its LED, and the isolated output (pins 3/4) connects 12V to the lamp wire like a jumper. Set GP7–GP9 to 8mA drive in firmware. Up to 5ms switching, which is fine because these are on/off only, never PWM: the lamp's own electronics run the breathing, brake flash and sequential turn sweep. The firmware holds a turn output steady on while that blinker (or hazards) is active; the HUD turn LED blinks ~1.5Hz on its own timer. With the headlight on a daytime strobe (daytime flasher or double flash), the brake output flashes in step with it (plain on/off, no PWM); a real brake overrides that with solid on.</li>
