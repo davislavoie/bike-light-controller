@@ -146,6 +146,9 @@ void loop() {
     bool turnPhase = now % HUD_TURN_PERIOD_MS < HUD_TURN_PERIOD_MS / 2;
     analogWrite(PIN_LED_TURN_L, leftOn(turn) && turnPhase ? hud : 0);
     analogWrite(PIN_LED_TURN_R, rightOn(turn) && turnPhase ? hud : 0);
+    // TEMP LED TEST: hold both HUD turn LEDs full on. Delete these two lines after testing.
+    analogWrite(PIN_LED_TURN_L, PWM_RANGE);
+    analogWrite(PIN_LED_TURN_R, PWM_RANGE);
 
     uint8_t bars = battery.bars();
     bool warnPhase = now % BAR_WARN_PERIOD_MS < BAR_WARN_PERIOD_MS / 2;
