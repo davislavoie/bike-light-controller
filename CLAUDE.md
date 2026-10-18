@@ -19,8 +19,9 @@ Adafruit KB2040 (RP2040, arduino-pico core) running a bike's headlight, rear bra
 - Inputs use internal pull-ups and are active-LOW, with no external pull-ups or caps; firmware debounces at 20ms.
 - The brake levers are NC to GND, so HIGH = squeezed, and a broken wire reads as braking.
 - Headlight: low-side IRLB3813 on GP6, PWM at 25kHz with `PWM_RANGE` 1000. Lower frequencies whine audibly.
-- The rear lamp outputs (GP7–9) drive TLP241A photorelays. These switch on/off only, never PWM (up to 5ms to switch).
+- The rear lamp outputs (GP7–9 brake/turns, GP29 tail) drive TLP241A photorelays. These switch on/off only, never PWM (up to 5ms to switch).
   - The lamp flashes its own turn signal, so hold turn outputs steady.
+  - The tail (runner) is on in every mode except a daytime strobe; the brake output flashes with any strobe, and real braking always overrides with solid on.
 - The HUD LEDs (GP0/1, GP10/18/19/20) are PWM-dimmed at night via `hudDuty`.
 - VSENSE (A1) has no filter cap; average many ADC reads. Calibrate with `VBAT_CAL`.
 - The low-voltage cutoff latches until a power cycle. On the bench, jumper A1 to 3V3 and GP2/GP3 to GND, or it trips.
@@ -31,4 +32,5 @@ Adafruit KB2040 (RP2040, arduino-pico core) running a bike's headlight, rear bra
 ## Temporary (2026-10-12)
 - The current KB2040 has GP2/GP3 shorted to GND internally. For bench testing, the brakes are on GP29 (left) and GP20 (right, borrowed from battery bar 4), so the bar shows 3 LEDs.
 - The right lever on the bench is an NO switch, so `main.cpp` inverts `brakeR`. Remove that `!` when it is swapped for an NC switch.
+- GP29 is taken, so the tail (runner) is temporarily on GP12 (Stemma QT SDA); it moves to GP29 with the new board.
 - When the replacement KB2040 arrives, revert the TEMP block at the top of `src/main.cpp`. The schematic, wiring diagram and page show this test setup (marked TEST SETUP); restore them too.

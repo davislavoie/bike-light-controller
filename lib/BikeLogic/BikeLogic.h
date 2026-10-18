@@ -192,9 +192,21 @@ inline uint16_t headDuty(HeadMode m, Brightness b, StrobePattern p, uint32_t now
     return flashOn(p, now) ? brightnessDuty(b) : 0;
 }
 
-// Rear brake light: solid while braking; otherwise it flashes in step with a daytime strobe.
+// Daytime strobe = one of the two flasher patterns (headlight dark between flashes).
+inline bool dayStrobe(HeadMode m, StrobePattern p) {
+    return m == HeadMode::Strobe && p != StrobePattern::SteadyPulse;
+}
+
+// Rear runner (tail): on all the time except during a daytime strobe, so the brake flashes stand out.
+inline bool rearTailOn(HeadMode m, StrobePattern p) { return !dayStrobe(m, p); }
+
+// Rear brake light: solid while braking; otherwise it flashes in step with any strobe
+// (the headlight's flashes by day, its full-power pulse at night).
 inline bool rearBrakeOn(bool braking, HeadMode m, StrobePattern p, uint32_t now) {
-    return braking || (m == HeadMode::Strobe && p != StrobePattern::SteadyPulse && flashOn(p, now));
+    if (braking) return true;
+    if (m != HeadMode::Strobe) return false;
+    if (p == StrobePattern::SteadyPulse) return now % PULSE_PERIOD_MS < PULSE_ON_MS;
+    return flashOn(p, now);
 }
 
 }  // namespace bike

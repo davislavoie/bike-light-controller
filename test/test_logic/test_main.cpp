@@ -1,4 +1,5 @@
 // Host-side tests for lib/BikeLogic. Run: pio test -e native
+#include <initializer_list>
 #include <unity.h>
 #include <BikeLogic.h>
 
@@ -232,14 +233,29 @@ void test_hud_dims_at_night_only() {
     TEST_ASSERT_TRUE(HUD_DUTY[0] > HUD_DUTY[1] && HUD_DUTY[1] > HUD_DUTY[2]);
 }
 
-void test_rear_brake_flashes_with_daytime_strobe() {
+void test_rear_brake_flashes_with_strobes() {
     const auto SP = StrobePattern::SteadyPulse, DF = StrobePattern::DaytimeFlash, DB = StrobePattern::DoubleFlash;
     TEST_ASSERT_TRUE(rearBrakeOn(false, HeadMode::Strobe, DF, 40));    // flash
     TEST_ASSERT_FALSE(rearBrakeOn(false, HeadMode::Strobe, DF, 400));  // dark
     TEST_ASSERT_TRUE(rearBrakeOn(true, HeadMode::Strobe, DF, 400));    // braking overrides: solid
     TEST_ASSERT_TRUE(rearBrakeOn(false, HeadMode::Strobe, DB, 180));   // double flash, second flash
-    TEST_ASSERT_FALSE(rearBrakeOn(false, HeadMode::Strobe, SP, 50));   // night strobe: no flashing
+    TEST_ASSERT_TRUE(rearBrakeOn(false, HeadMode::Strobe, SP, 50));    // night strobe: flash with the pulse
+    TEST_ASSERT_FALSE(rearBrakeOn(false, HeadMode::Strobe, SP, 500));  // ...dark between pulses
+    TEST_ASSERT_TRUE(rearBrakeOn(true, HeadMode::Strobe, SP, 500));    // braking overrides: solid
     TEST_ASSERT_FALSE(rearBrakeOn(false, HeadMode::On, DF, 40));       // headlight ON: no flashing
+    TEST_ASSERT_FALSE(rearBrakeOn(false, HeadMode::Off, SP, 50));      // headlight OFF: no flashing
+    TEST_ASSERT_TRUE(rearBrakeOn(true, HeadMode::Off, SP, 500));       // ...but brakes still work
+}
+
+void test_runner_off_only_in_daytime_strobe() {
+    const auto SP = StrobePattern::SteadyPulse, DF = StrobePattern::DaytimeFlash, DB = StrobePattern::DoubleFlash;
+    for (auto p : {SP, DF, DB}) {
+        TEST_ASSERT_TRUE(rearTailOn(HeadMode::Off, p));
+        TEST_ASSERT_TRUE(rearTailOn(HeadMode::On, p));
+    }
+    TEST_ASSERT_TRUE(rearTailOn(HeadMode::Strobe, SP));   // night strobe: runner stays on
+    TEST_ASSERT_FALSE(rearTailOn(HeadMode::Strobe, DF));  // daytime strobes: runner off
+    TEST_ASSERT_FALSE(rearTailOn(HeadMode::Strobe, DB));
 }
 
 int main() {
@@ -266,6 +282,7 @@ int main() {
     RUN_TEST(test_flicks_cycle_all_three_patterns);
     RUN_TEST(test_selector_starts_from_saved_pattern);
     RUN_TEST(test_hud_dims_at_night_only);
-    RUN_TEST(test_rear_brake_flashes_with_daytime_strobe);
+    RUN_TEST(test_rear_brake_flashes_with_strobes);
+    RUN_TEST(test_runner_off_only_in_daytime_strobe);
     return UNITY_END();
 }

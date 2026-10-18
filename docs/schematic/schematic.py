@@ -53,20 +53,20 @@ def sheet_power():
     d += elm.Label().at((wago.center[0] + 0.3, wago.center[1] + 0.35)).label("WAGO +", halign="left", fontsize=10)
     gnd(d, bt.start)
 
-    # Rear lamp tail (white) and ground (black) land on the Wagos: tail is lit whenever SW1 is on
-    lamp_pins = [("WHT tail", None), ("BLK GND", "GND"), ("RED brake", "LAMP_RED"),
+    # The Wagos are the Y splice: battery 12V and GND join the rear lamp's harness there.
+    # The lamp's ground (black) lands on the GND Wago; tail (white) runs up to the box like the rest.
+    lamp_pins = [("WHT tail", "LAMP_WHT"), ("BLK GND", "GND"), ("RED brake", "LAMP_RED"),
                  ("YEL turn*", "LAMP_YEL"), ("GRN turn*", "LAMP_GRN")]
     d += (lamp := elm.Ic(pins=[elm.IcPin(name=n, side="right", anchorname=f"W{k}")
                                for k, (n, _) in reversed(list(enumerate(lamp_pins)))],
                          pinspacing=0.8, edgepadH=0.4, size=(3.2, 4.4)).right().anchor("W0").at((4.5, -2))
           .label("Rear lamp\n(own harness)", loc="top", ofst=0.2))
-    d += elm.Wire("|-").at(wago.center).to(lamp.W0)
-    for k, (_, n) in enumerate(lamp_pins[1:], start=1):
+    for k, (_, n) in enumerate(lamp_pins):
         net(d, getattr(lamp, f"W{k}"), n, "right", 0.5)
 
     # J1: harness from the Wagos up to the handlebar box (22 AWG power, 24 AWG signals)
     j1_pins = [("1 +12V", None, None), ("2 GND", "GND", "GND"), ("3 brake", "LAMP_RED", "REAR_BRAKE"),
-               ("4 turn", "LAMP_YEL", "REAR_TURN_L"), ("5 turn", "LAMP_GRN", "REAR_TURN_R"), ("6 GND", "GND", "GND")]
+               ("4 turn", "LAMP_YEL", "REAR_TURN_L"), ("5 turn", "LAMP_GRN", "REAR_TURN_R"), ("6 tail", "LAMP_WHT", "REAR_TAIL")]
     pins = ([elm.IcPin(name=n, side="left", anchorname=f"L{k}") for k, (n, _, _) in reversed(list(enumerate(j1_pins)))] +
             [elm.IcPin(name="", side="right", anchorname=f"R{k}") for k in reversed(range(len(j1_pins)))])
     d += (j1 := elm.Ic(pins=pins, pinspacing=0.8, edgepadH=0.4, size=(2.6, 5.2)).right().anchor("L0").at((10.5, 3))
@@ -117,17 +117,19 @@ def sheet_power():
     note(d, (bt.start[0], -8.2),
          "Low-voltage cutoff is in firmware: below 10.0 V the last battery bar blinks (rear lamp has shut itself off); 9.4 V held for 5 s turns every light off and the RP2040 sleeps.\n"
          "Turn SW1 off after a cutoff. C1 and C2 mount right at U1's pins. VSENSE = VBAT × 22/122: 12.6 V reads 2.27 V, 9.0 V reads 1.62 V.   +5V feeds the KB2040 RAW pin.\n"
-         "* The lamp listing doesn't say which of yellow/green is left: touch each to 12 V before crimping. Headlight connects on J2 (Nano-Fit 1×2), sheet 4.")
+         "* The lamp listing doesn't say which of yellow/green is left: touch each to 12 V before crimping. Headlight connects on J2 (Nano-Fit 1×2), sheet 4; brake levers on J3 (Nano-Fit 2×2), sheet 3.\n"
+         "J1 pin 2 carries the whole box's ground return, headlight included: use 20 AWG for J1's 12V and GND.")
     return d
 
 
 # --------------------------------------------------------------- sheet 2: MCU
 # top -> bottom on each side
 # TEST SETUP (2026-10-12): GP2/GP3 are shorted inside this KB2040, so the brakes moved to
-# GP29 and GP20 and battery bar 4 is off. Restore when the replacement board arrives.
+# GP29 and GP20 and battery bar 4 is off, and the tail (runner) is on GP12 because GP29 is taken.
+# Restore when the replacement board arrives: brakes on GP2/GP3, bar 4 on GP20, tail on GP29.
 LEFT = [("GP0", "LED_TURN_L"), ("GP1", "LED_TURN_R"), ("GP2", None), ("GP3", None),
         ("GP4", "HEAD_ON"), ("GP5", "HEAD_STROBE"), ("GP6", "GATE_HEAD"), ("GP7", "CTL_BRAKE"),
-        ("GP8", "CTL_TURN_L"), ("GP9", "CTL_TURN_R")]
+        ("GP8", "CTL_TURN_L"), ("GP9", "CTL_TURN_R"), ("GP12 (QT SDA)", "CTL_TAIL")]
 RIGHT = [("RAW", "+5V"), ("3V3", None), ("A0/GP26", "BRIGHT_LO"), ("A1/GP27", "VSENSE"),
          ("A2/GP28", "BRIGHT_HI"), ("A3/GP29", "BRAKE_L"), ("GP10", "LED_BATT_1"), ("GP18", "LED_BATT_2"),
          ("GP19", "LED_BATT_3"), ("GP20", "BRAKE_R"), ("GND", "GND")]
@@ -154,9 +156,10 @@ def sheet_mcu():
             gnd(d, d.here)
         else:
             net(d, at, n, "right", 0.75)
-    note(d, (u.L9[0] - 3, u.L9[1] - 2),
+    note(d, (u.L10[0] - 3, u.L10[1] - 2),
          "TEST SETUP: GP2/GP3 are shorted inside this KB2040 and left unconnected; brakes on GP29 (L) and GP20 (R), battery bar 4 off.\n"
-         "Spare: Stemma QT (GP12/GP13); 3V3 out unused. Onboard NeoPixel on GP17 is unused.")
+         "TEST SETUP: tail (runner) on GP12, the Stemma QT SDA pin, because GP29 is taken; it moves to GP29 with the new board.\n"
+         "Spare: Stemma QT SCL (GP13); 3V3 out unused. Onboard NeoPixel on GP17 is unused.")
     return d
 
 
@@ -165,7 +168,7 @@ def sheet_mcu():
 # (INPUT_PULLUP) and are debounced / averaged in firmware.
 def sheet_hud():
     d = drawing()
-    for x, sig, lbl in [(2, "BRAKE_L", "SW2 brake\nlever L (NC)"), (8, "BRAKE_R", "SW3 brake\nlever R (NC)")]:
+    for x, sig, lbl in [(2, "BRAKE_L", "SW2 brake lever L (NC)\nJ3 pins 1 / 2"), (8, "BRAKE_R", "SW3 brake lever R (NC)\nJ3 pins 3 / 4")]:
         d += elm.Dot().at((x, 0))
         net(d, (x, 0), sig, "left", 0.5)
         d += elm.Button(nc=True).down().at((x, 0)).label(lbl, loc="bot")
@@ -213,6 +216,7 @@ def sheet_hud():
 
     note(d, (-1, y - 7.4),
          "Inputs use the RP2040 internal pull-ups (INPUT_PULLUP) and are debounced in firmware. BRIGHT_LO and BRIGHT_HI both HIGH = medium.\n"
+         "Both levers plug into J3 (Nano-Fit 2×2): 1 BRAKE_L · 2 GND · 3 BRAKE_R · 4 GND.\n"
          "Brake = BRAKE_L and BRAKE_R both HIGH (levers squeezed, NC contacts open). A cut wire also reads HIGH, so the brake light fails on.\n"
          "HEAD_ON and HEAD_STROBE both HIGH = headlight off.  D3–D5 form the battery gauge (D3 = first bar; TEST SETUP: bar 4 / D6 off). Use diffused LEDs behind the PETG window.")
     return d
@@ -247,7 +251,7 @@ def sheet_drivers():
     # (Toshiba TLP241A, DIP-4). Its output is an isolated switch, so it sits on the 12V
     # side like a jumper wire; the GPIO only lights its internal LED.
     chans = [("CTL_BRAKE", "REAR_BRAKE", "U3", "R7"), ("CTL_TURN_L", "REAR_TURN_L", "U4", "R8"),
-             ("CTL_TURN_R", "REAR_TURN_R", "U5", "R9")]
+             ("CTL_TURN_R", "REAR_TURN_R", "U5", "R9"), ("CTL_TAIL", "REAR_TAIL", "U6", "R10")]
     for i, (sig, out, u, r) in enumerate(chans):
         x = 9 + i * 12
         d += (pr := elm.Ic(pins=[elm.IcPin(name="LED+", pin="1", side="left", slot="2/2", anchorname="A"),
@@ -264,9 +268,9 @@ def sheet_drivers():
         net(d, pr.O3, out, "right", 0.75)
 
     note(d, (-2, -6.5),
-         "Headlight: low-side, 25 kHz PWM for dimming and strobe (22 Ω gate resistor, 12 mA pin drive). Rear lamp: shared ground, so brake and turns are switched on the 12V side, fully on/off (no PWM);\n"
-         "the lamp runs its own breathing / brake-flash / sequential patterns. REAR_* nets leave the box on J1 (sheet 1); tail and lamp ground sit on the Wagos.\n"
-         "R6 holds the headlight off while the MCU is unpowered. TLP241A: 40 V / 2 A output, LED trigger ≤ 3 mA; set GP7–GP9 to 8 mA drive in firmware. Output pins 3/4 are interchangeable.")
+         "Headlight: low-side, 25 kHz PWM for dimming and strobe (22 Ω gate resistor, 12 mA pin drive). Rear lamp: shared ground, so tail, brake and turns are switched on the 12V side, fully on/off (no PWM);\n"
+         "the lamp runs its own breathing / brake-flash / sequential patterns. REAR_* nets leave the box on J1 (sheet 1); lamp ground sits on the GND Wago.\n"
+         "R6 holds the headlight off while the MCU is unpowered. TLP241A: 40 V / 2 A output, LED trigger ≤ 3 mA; set GP7–GP9 and the tail pin to 8 mA drive in firmware. Output pins 3/4 are interchangeable.")
     return d
 
 

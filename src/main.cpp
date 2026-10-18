@@ -12,11 +12,12 @@ using namespace bike;
 constexpr uint8_t PIN_LED_TURN_L = 0, PIN_LED_TURN_R = 1;
 // TEMP (2026-10-12): GP2/GP3 are shorted to GND inside the current KB2040. Brakes moved to
 // GP29 (A3) and GP20 (bar 4's pin) until the replacement board arrives; then go back to
-// PIN_BRAKE_L = 2, PIN_BRAKE_R = 3 and PIN_BATT_BAR = {10, 18, 19, 20}.
+// PIN_BRAKE_L = 2, PIN_BRAKE_R = 3, PIN_BATT_BAR = {10, 18, 19, 20} and PIN_REAR_TAIL = 29.
 constexpr uint8_t PIN_BRAKE_L = 29, PIN_BRAKE_R = 20;            // NC to GND: HIGH = squeezed
 constexpr uint8_t PIN_HEAD_ON = 4, PIN_HEAD_STROBE = 5;          // ON-OFF-ON to GND
 constexpr uint8_t PIN_HEADLIGHT = 6;                             // IRLB3813 gate, PWM
 constexpr uint8_t PIN_REAR_BRAKE = 7, PIN_REAR_TURN_L = 8, PIN_REAR_TURN_R = 9;  // TLP241A LEDs
+constexpr uint8_t PIN_REAR_TAIL = 12;                            // U6 TLP241A: runner (TEMP: STEMMA QT SDA)
 constexpr uint8_t PIN_BATT_BAR[] = {10, 18, 19};                 // bar 1..3 (TEMP: bar 4 lent to the right brake)
 constexpr uint8_t PIN_BRIGHT_LO = 26, PIN_BRIGHT_HI = 28;        // ON-OFF-ON to GND
 constexpr uint8_t PIN_VSENSE = 27;                               // A1: VBAT x 22/122
@@ -70,7 +71,7 @@ float readVbat() {
 void allOutputsOff() {
     for (uint8_t p : {PIN_HEADLIGHT, PIN_LED_TURN_L, PIN_LED_TURN_R}) analogWrite(p, 0);
     for (uint8_t p : PIN_BATT_BAR) analogWrite(p, 0);
-    for (uint8_t p : {PIN_REAR_BRAKE, PIN_REAR_TURN_L, PIN_REAR_TURN_R}) digitalWrite(p, LOW);
+    for (uint8_t p : {PIN_REAR_TAIL, PIN_REAR_BRAKE, PIN_REAR_TURN_L, PIN_REAR_TURN_R}) digitalWrite(p, LOW);
 }
 
 // Below 9.4 V for 5 s: everything off for good, just a short blink of bar 1
@@ -89,7 +90,7 @@ void allOutputsOff() {
 void setup() {
     Serial.begin(115200);
 
-    for (uint8_t p : {PIN_HEADLIGHT, PIN_REAR_BRAKE, PIN_REAR_TURN_L, PIN_REAR_TURN_R, PIN_LED_TURN_L, PIN_LED_TURN_R})
+    for (uint8_t p : {PIN_HEADLIGHT, PIN_REAR_TAIL, PIN_REAR_BRAKE, PIN_REAR_TURN_L, PIN_REAR_TURN_R, PIN_LED_TURN_L, PIN_LED_TURN_R})
         pinMode(p, OUTPUT);
     for (uint8_t p : PIN_BATT_BAR) pinMode(p, OUTPUT);
     for (uint8_t p : {PIN_BRAKE_L, PIN_BRAKE_R, PIN_HEAD_ON, PIN_HEAD_STROBE, PIN_BRIGHT_LO, PIN_BRIGHT_HI})
@@ -97,7 +98,7 @@ void setup() {
     for (Debounced* d : {&brakeL, &brakeR, &headOn, &headStrobe, &brightLo, &brightHi}) d->begin();
 
     // The TLP241A LEDs want ~6 mA through 330 Ω; the default 4 mA drive sags.
-    for (uint8_t p : {PIN_REAR_BRAKE, PIN_REAR_TURN_L, PIN_REAR_TURN_R})
+    for (uint8_t p : {PIN_REAR_TAIL, PIN_REAR_BRAKE, PIN_REAR_TURN_L, PIN_REAR_TURN_R})
         gpio_set_drive_strength(p, GPIO_DRIVE_STRENGTH_8MA);
     gpio_set_drive_strength(PIN_HEADLIGHT, GPIO_DRIVE_STRENGTH_12MA);
 
@@ -137,6 +138,7 @@ void loop() {
         EEPROM.commit();
     }
     analogWrite(PIN_HEADLIGHT, headDuty(mode, bright, strobeSel.pattern(), now));
+    digitalWrite(PIN_REAR_TAIL, rearTailOn(mode, strobeSel.pattern()));
     digitalWrite(PIN_REAR_BRAKE, rearBrakeOn(levers.brake(), mode, strobeSel.pattern(), now));
     digitalWrite(PIN_REAR_TURN_L, leftOn(turn));
     digitalWrite(PIN_REAR_TURN_R, rightOn(turn));
