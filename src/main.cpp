@@ -14,10 +14,10 @@ constexpr uint8_t PIN_BRAKE_L = 2, PIN_BRAKE_R = 3;              // NC to GND: H
 constexpr uint8_t PIN_HEAD_ON = 4, PIN_HEAD_STROBE = 5;          // ON-OFF-ON to GND
 constexpr uint8_t PIN_HEADLIGHT = 6;                             // IRLB3813 gate, PWM
 constexpr uint8_t PIN_REAR_BRAKE = 7, PIN_REAR_TURN_L = 8, PIN_REAR_TURN_R = 9;  // TLP241A LEDs
-constexpr uint8_t PIN_REAR_TAIL = 29;                            // A3: U6 TLP241A LED, runner
+constexpr uint8_t PIN_REAR_TAIL = 27;                            // A1: U6 TLP241A LED, runner
 constexpr uint8_t PIN_BATT_BAR[4] = {10, 18, 19, 20};            // bar 1..4
 constexpr uint8_t PIN_BRIGHT_LO = 26, PIN_BRIGHT_HI = 28;        // ON-OFF-ON to GND
-constexpr uint8_t PIN_VSENSE = 27;                               // A1: VBAT x 22/122
+constexpr uint8_t PIN_VSENSE = 29;                               // A3: VBAT x 22/122
 
 // ---- Battery sense. Measure the battery with a multimeter, compare with the
 // "vbat" value printed on the serial monitor, and set VBAT_CAL = meter / printed.

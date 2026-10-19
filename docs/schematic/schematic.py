@@ -123,13 +123,13 @@ def sheet_power():
 
 
 # --------------------------------------------------------------- sheet 2: MCU
-# top -> bottom on each side
-LEFT = [("GP0", "LED_TURN_L"), ("GP1", "LED_TURN_R"), ("GP2", "BRAKE_L"), ("GP3", "BRAKE_R"),
-        ("GP4", "HEAD_ON"), ("GP5", "HEAD_STROBE"), ("GP6", "GATE_HEAD"), ("GP7", "CTL_BRAKE"),
-        ("GP8", "CTL_TURN_L"), ("GP9", "CTL_TURN_R")]
-RIGHT = [("RAW", "+5V"), ("3V3", None), ("A0/GP26", "BRIGHT_LO"), ("A1/GP27", "VSENSE"),
-         ("A2/GP28", "BRIGHT_HI"), ("A3/GP29", "CTL_TAIL"), ("GP10", "LED_BATT_1"), ("GP18", "LED_BATT_2"),
-         ("GP19", "LED_BATT_3"), ("GP20", "LED_BATT_4"), ("GND", "GND")]
+# top -> bottom on each side, in the board's physical header order (USB end at the top)
+LEFT = [("D0/GP0", "LED_TURN_L"), ("D1/GP1", "LED_TURN_R"), ("GND", "GND"), ("GND", "GND"),
+        ("D2/GP2", "BRAKE_L"), ("D3/GP3", "BRAKE_R"), ("D4/GP4", "HEAD_ON"), ("D5/GP5", "HEAD_STROBE"),
+        ("D6/GP6", "GATE_HEAD"), ("D7/GP7", "CTL_BRAKE"), ("D8/GP8", "CTL_TURN_L"), ("D9/GP9", "CTL_TURN_R")]
+RIGHT = [("RAW", "+5V"), ("GND", "GND"), ("RESET", None), ("3V3", None),
+         ("A3/GP29", "VSENSE"), ("A2/GP28", "BRIGHT_HI"), ("A1/GP27", "CTL_TAIL"), ("A0/GP26", "BRIGHT_LO"),
+         ("SCK/GP18", "LED_BATT_2"), ("MISO/GP20", "LED_BATT_4"), ("MOSI/GP19", "LED_BATT_3"), ("D10/GP10", "LED_BATT_1")]
 
 
 def sheet_mcu():
@@ -137,11 +137,14 @@ def sheet_mcu():
     # schemdraw stacks side pins bottom-up, so feed them reversed
     pins = ([elm.IcPin(name=p, side="left", anchorname=f"L{i}") for i, (p, _) in reversed(list(enumerate(LEFT)))] +
             [elm.IcPin(name=p, side="right", anchorname=f"R{i}") for i, (p, _) in reversed(list(enumerate(RIGHT)))])
-    d += (u := elm.Ic(pins=pins, pinspacing=0.75, edgepadH=0.5, size=(4, 8.75))
+    d += (u := elm.Ic(pins=pins, pinspacing=0.75, edgepadH=0.5, size=(4.5, 9.5))
           .label("U2  Adafruit KB2040\nRP2040", loc="top", ofst=0.2))
     for i, (_, n) in enumerate(LEFT):
         if n is None:
             d += elm.NoConnect().at(getattr(u, f"L{i}"))
+        elif n == "GND":
+            d += elm.Line().left().at(getattr(u, f"L{i}")).length(0.75)
+            d += elm.Ground().theta(270)  # points left, clear of the pins below
         else:
             net(d, getattr(u, f"L{i}"), n, "left", 0.75)
     for i, (_, n) in enumerate(RIGHT):
@@ -153,7 +156,7 @@ def sheet_mcu():
             gnd(d, d.here)
         else:
             net(d, at, n, "right", 0.75)
-    note(d, (u.L9[0] - 3, u.L9[1] - 2),
+    note(d, (u.L11[0] - 3, u.L11[1] - 2),
          "Every header GPIO is in use. Spare: Stemma QT (GP12/GP13); 3V3 out unused. Onboard NeoPixel on GP17 is unused.")
     return d
 
