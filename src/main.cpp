@@ -8,12 +8,13 @@
 
 using namespace bike;
 
-// ---- Pins (see docs/wiring-diagram.html)
-constexpr uint8_t PIN_LED_TURN_L = 0, PIN_LED_TURN_R = 1;
+// ---- Pins (see docs/wiring-diagram.html). PWM pins share hardware in pairs (GP2/GP18,
+// GP3/GP19, GP4/GP20, GP10/GP26 drive the same output), so only inputs go on GP2-4 and GP26.
+constexpr uint8_t PIN_HEADLIGHT = 0;                             // IRLB3813 gate, PWM
+constexpr uint8_t PIN_LED_TURN_L = 1, PIN_LED_TURN_R = 6;
 constexpr uint8_t PIN_BRAKE_L = 2, PIN_BRAKE_R = 3;              // NC to GND: HIGH = squeezed
 constexpr uint8_t PIN_HEAD_ON = 4, PIN_HEAD_STROBE = 5;          // ON-OFF-ON to GND
-constexpr uint8_t PIN_HEADLIGHT = 9;                             // IRLB3813 gate, PWM
-constexpr uint8_t PIN_REAR_BRAKE = 6, PIN_REAR_TURN_L = 7, PIN_REAR_TURN_R = 8;  // TLP241A LEDs
+constexpr uint8_t PIN_REAR_BRAKE = 7, PIN_REAR_TURN_L = 8, PIN_REAR_TURN_R = 9;  // TLP241A LEDs
 constexpr uint8_t PIN_REAR_TAIL = 27;                            // A1: U6 TLP241A LED, runner
 constexpr uint8_t PIN_BATT_BAR[4] = {10, 18, 19, 20};            // bar 1..4
 constexpr uint8_t PIN_BRIGHT_LO = 26, PIN_BRIGHT_HI = 28;        // ON-OFF-ON to GND
