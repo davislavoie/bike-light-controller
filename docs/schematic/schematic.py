@@ -227,6 +227,11 @@ def nfet_with_gate(d, drain_at, q, sig, rg, rpd):
     d += (qq := elm.NFet(bulk=False).right().anchor("drain").at(drain_at))
     d += elm.Label().at((qq.source[0] - 0.3, qq.source[1] + 0.2)).label(
         f"{q}\nIRLB3813PbF", halign="right", valign="bottom")
+    # TO-220 legs, left to right facing the label: 1 G, 2 D (also the tab), 3 S
+    pinlbl = dict(fontsize=8, color=NET)
+    d += elm.Label().at((qq.drain[0] - 0.15, qq.drain[1] + 0.35)).label("D · 2 (tab)", halign="right", **pinlbl)
+    d += elm.Label().at((qq.source[0] - 0.15, qq.source[1] - 0.3)).label("S · 3", halign="right", **pinlbl)
+    d += elm.Label().at((qq.gate[0] + 0.05, qq.gate[1] + 0.3)).label("G · 1", halign="left", **pinlbl)
     d += elm.Line().down().at(qq.source).length(0.5)
     gnd(d, d.here)
     d += elm.Line().right().at(qq.gate).length(0.4)
