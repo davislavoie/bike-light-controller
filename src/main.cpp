@@ -99,6 +99,9 @@ void setup() {
     for (uint8_t p : {PIN_REAR_TAIL, PIN_REAR_BRAKE, PIN_REAR_TURN_L, PIN_REAR_TURN_R})
         gpio_set_drive_strength(p, GPIO_DRIVE_STRENGTH_8MA);
     gpio_set_drive_strength(PIN_HEADLIGHT, GPIO_DRIVE_STRENGTH_12MA);
+    // HUD turn LEDs run ~6 mA through 220 Ω to read in sunlight; the battery bar stays on
+    // 330 Ω (~4 mA) so every GPIO together stays near the RP2040's ~50 mA budget.
+    for (uint8_t p : {PIN_LED_TURN_L, PIN_LED_TURN_R}) gpio_set_drive_strength(p, GPIO_DRIVE_STRENGTH_8MA);
 
     analogWriteFreq(HEAD_PWM_HZ);
     analogWriteRange(PWM_RANGE);

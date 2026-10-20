@@ -201,7 +201,7 @@ def sheet_hud():
 
     # Indicator LEDs
     y = -11
-    leds = [("LED_TURN_L", "D1 amber", "330Ω"), ("LED_TURN_R", "D2 amber", "330Ω"),
+    leds = [("LED_TURN_L", "D1 amber", "220Ω"), ("LED_TURN_R", "D2 amber", "220Ω"),
             ("LED_BATT_1", "D3 red", "330Ω"), ("LED_BATT_2", "D4 red", "330Ω"),
             ("LED_BATT_3", "D5 red", "330Ω"), ("LED_BATT_4", "D6 red", "330Ω")]
     for i, (sig, name, r) in enumerate(leds):
