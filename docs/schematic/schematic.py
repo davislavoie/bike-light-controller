@@ -126,9 +126,9 @@ def sheet_power():
 # top -> bottom on each side, in the board's physical header order (USB end at the top)
 LEFT = [("D0/GP0", "GATE_HEAD"), ("D1/GP1", "LED_TURN_L"), ("GND", "GND"), ("GND", "GND"),
         ("D2/GP2", "BRAKE_L"), ("D3/GP3", "BRAKE_R"), ("D4/GP4", "HEAD_ON"), ("D5/GP5", "HEAD_STROBE"),
-        ("D6/GP6", "LED_TURN_R"), ("D7/GP7", "CTL_BRAKE"), ("D8/GP8", "CTL_TURN_L"), ("D9/GP9", "CTL_TURN_R")]
+        ("D6/GP6", "LED_TURN_R"), ("D7/GP7", "BRIGHT_HI"), ("D8/GP8", "CTL_TURN_L"), ("D9/GP9", "CTL_TURN_R")]
 RIGHT = [("RAW", "+5V"), ("GND", "GND"), ("RESET", None), ("3V3", None),
-         ("A3/GP29", "VSENSE"), ("A2/GP28", "BRIGHT_HI"), ("A1/GP27", "CTL_TAIL"), ("A0/GP26", "BRIGHT_LO"),
+         ("A3/GP29", "VSENSE"), ("A2/GP28", "CTL_BRAKE"), ("A1/GP27", "CTL_TAIL"), ("A0/GP26", "BRIGHT_LO"),
          ("SCK/GP18", "LED_BATT_2"), ("MISO/GP20", "LED_BATT_4"), ("MOSI/GP19", "LED_BATT_3"), ("D10/GP10", "LED_BATT_1")]
 
 
@@ -273,7 +273,7 @@ def sheet_drivers():
     note(d, (-2, -6.5),
          "Headlight: low-side, 25 kHz PWM for dimming and strobe (22 Ω gate resistor, 12 mA pin drive). Rear lamp: shared ground, so tail, brake and turns are switched on the 12V side, fully on/off (no PWM);\n"
          "the lamp runs its own breathing / brake-flash / sequential patterns. REAR_* nets leave the box on J1 (sheet 1); lamp ground sits on the GND Wago.\n"
-         "R6 holds the headlight off while the MCU is unpowered. TLP241A: 40 V / 2 A output, LED trigger ≤ 3 mA; set GP7–GP9 and the tail pin to 8 mA drive in firmware. Output pins 3/4 are interchangeable.")
+         "R6 holds the headlight off while the MCU is unpowered. TLP241A: 40 V / 2 A output, LED trigger ≤ 3 mA; set the four relay pins (GP28, GP8, GP9, GP27) to 8 mA drive in firmware. Output pins 3/4 are interchangeable.")
     return d
 
 
