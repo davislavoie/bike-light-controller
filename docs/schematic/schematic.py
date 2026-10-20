@@ -124,8 +124,8 @@ def sheet_power():
 
 # --------------------------------------------------------------- sheet 2: MCU
 # top -> bottom on each side, in the board's physical header order (USB end at the top)
-LEFT = [("D0/GP0", "GATE_HEAD"), ("D1/GP1", "LED_TURN_L"), ("GND", "GND"), ("GND", "GND"),
-        ("D2/GP2", "BRAKE_L"), ("D3/GP3", "BRAKE_R"), ("D4/GP4", "HEAD_STROBE"), ("D5/GP5", "LED_TURN_R"),
+LEFT = [("D0/GP0", "GATE_HEAD"), ("D1/GP1", "HEAD_STROBE"), ("GND", "GND"), ("GND", "GND"),
+        ("D2/GP2", "BRAKE_L"), ("D3/GP3", "BRAKE_R"), ("D4/GP4", "LED_TURN_L"), ("D5/GP5", "LED_TURN_R"),
         ("D6/GP6", "LED_BATT_1"), ("D7/GP7", "LED_BATT_2"), ("D8/GP8", "LED_BATT_3"), ("D9/GP9", "LED_BATT_4")]
 RIGHT = [("RAW", "+5V"), ("GND", "GND"), ("RESET", None), ("3V3", None),
          ("A3/GP29", "CTL_BRAKE"), ("A2/GP28", "CTL_TURN_L"), ("A1/GP27", "CTL_TURN_R"), ("A0/GP26", "VSENSE"),

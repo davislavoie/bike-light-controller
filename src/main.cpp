@@ -9,12 +9,12 @@
 using namespace bike;
 
 // ---- Pins (see docs/wiring-diagram.html). RP2040 PWM pins share hardware in pairs (e.g.
-// GP2/GP18, GP10/GP26 drive the same output): every PWM pin below (GP0, 1, 5-9) has a
+// GP2/GP18, GP10/GP26 drive the same output): every PWM pin below (GP0, 4-9) has a
 // partner that is unused or an input.
 constexpr uint8_t PIN_HEADLIGHT = 0;                             // IRLB3813 gate, PWM
-constexpr uint8_t PIN_LED_TURN_L = 1, PIN_LED_TURN_R = 5;
+constexpr uint8_t PIN_LED_TURN_L = 4, PIN_LED_TURN_R = 5;
 constexpr uint8_t PIN_BRAKE_L = 2, PIN_BRAKE_R = 3;              // NC to GND: HIGH = squeezed
-constexpr uint8_t PIN_HEAD_ON = 10, PIN_HEAD_STROBE = 4;         // ON-OFF-ON to GND
+constexpr uint8_t PIN_HEAD_ON = 10, PIN_HEAD_STROBE = 1;         // ON-OFF-ON to GND
 constexpr uint8_t PIN_REAR_BRAKE = 29, PIN_REAR_TURN_L = 28, PIN_REAR_TURN_R = 27; // TLP241A LEDs: A3, A2, A1
 constexpr uint8_t PIN_REAR_TAIL = 18;                            // SCK: U6 TLP241A LED, runner
 constexpr uint8_t PIN_BATT_BAR[4] = {6, 7, 8, 9};                // bar 1..4 (D6-D9)
