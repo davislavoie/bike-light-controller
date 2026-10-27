@@ -22,7 +22,7 @@ constexpr uint8_t PIN_BRIGHT_LO = 20, PIN_BRIGHT_HI = 19;        // ON-OFF-ON to
 constexpr uint8_t PIN_VSENSE = 26;                               // A0: VBAT x 22/122
 
 // ---- Battery sense. Measure the battery with a multimeter, compare with the
-// "vbat" value printed on the serial monitor, and set VBAT_CAL = meter / printed.
+// "vbat_mv" value printed on the serial monitor, and set VBAT_CAL = meter / printed.
 constexpr float VBAT_DIVIDER = 122.0f / 22.0f;
 constexpr float VBAT_CAL = 1.00f;
 
@@ -159,7 +159,9 @@ void loop() {
     static uint32_t lastPrint = 0;
     if (now - lastPrint >= 1000) {
         lastPrint = now;
-        Serial.printf("vbat=%.2f bars=%u brake=%d turn=%u head=%u bright=%u strobe=%u\n", battery.volts(), bars,
+        // printf here has no float support, so print millivolts as an integer
+        Serial.printf("vbat_mv=%u bars=%u brake=%d turn=%u head=%u bright=%u strobe=%u\n",
+                      (unsigned)(battery.volts() * 1000), bars,
                       levers.brake(), (unsigned)turn, (unsigned)mode, (unsigned)bright, (unsigned)strobeSel.pattern());
     }
 }
