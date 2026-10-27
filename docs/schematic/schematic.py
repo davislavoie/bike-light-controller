@@ -66,8 +66,8 @@ def sheet_power():
 
     # J1: harness from the Wagos up to the handlebar box (22 AWG power, 24 AWG signals)
     # Listed top-down from pin 6 so +12V stays level with the Wago. Colours are the J1 harness, not the lamp's.
-    j1_pins = [("6 +12V YEL", None, None), ("5 R turn BLU", "LAMP_GRN", "REAR_TURN_R"),
-               ("4 L turn GRN", "LAMP_YEL", "REAR_TURN_L"), ("3 GND BLK", "GND", "GND"),
+    j1_pins = [("6 +12V YEL", None, None), ("5 R turn BLU", "LAMP_YEL", "REAR_TURN_R"),
+               ("4 L turn GRN", "LAMP_GRN", "REAR_TURN_L"), ("3 GND BLK", "GND", "GND"),
                ("2 tail WHT", "LAMP_WHT", "REAR_TAIL"), ("1 brake RED", "LAMP_RED", "REAR_BRAKE")]
     pins = ([elm.IcPin(name=n, side="left", anchorname=f"L{k}") for k, (n, _, _) in reversed(list(enumerate(j1_pins)))] +
             [elm.IcPin(name="", side="right", anchorname=f"R{k}") for k in reversed(range(len(j1_pins)))])
@@ -119,7 +119,7 @@ def sheet_power():
     note(d, (bt.start[0], -8.2),
          "Low-voltage cutoff is in firmware: below 10.0 V the last battery bar blinks (rear lamp has shut itself off); 9.4 V held for 5 s turns every light off and the RP2040 sleeps.\n"
          "Turn SW1 off after a cutoff. C1 and C2 mount right at U1's pins. VSENSE = VBAT × 22/122: 12.6 V reads 2.27 V, 9.0 V reads 1.62 V.   +5V feeds the KB2040 RAW pin.\n"
-         "* The lamp listing doesn't say which of yellow/green is left: touch each to 12 V before crimping. Headlight connects on J2 (Nano-Fit 1×2), sheet 4; brake levers on J3 (Nano-Fit 2×2), sheet 3.\n"
+         "* As wired: lamp green → J1 pin 4 (left), lamp yellow → J1 pin 5 (right). If the lamp blinks the wrong side, swap J1 pins 4 and 5. Headlight connects on J2 (Nano-Fit 1×2), sheet 4; brake levers on J3 (Nano-Fit 2×2), sheet 3.\n"
          "J1 pin 3 carries the whole box's ground return, headlight included: use 20 AWG for J1's 12V (pin 6) and GND (pin 3).\n"
          "J1 harness colours: 1 red brake · 2 white tail · 3 black GND · 4 green L turn · 5 blue R turn · 6 yellow +12V (not the lamp's own colours).")
     return d
