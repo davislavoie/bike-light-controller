@@ -24,7 +24,9 @@ constexpr uint8_t PIN_VSENSE = 26;                               // A0: VBAT x 2
 // ---- Battery sense. Measure the battery with a multimeter, compare with the
 // "vbat_mv" value printed on the serial monitor, and set VBAT_CAL = meter / printed.
 constexpr float VBAT_DIVIDER = 122.0f / 22.0f;
-constexpr float VBAT_CAL = 1.00f;
+// Bench 2026-10-26: printed 9728 / 10676 / 11590 mV at 10 / 11 / 12 V. The ADC has some
+// offset, so one gain is within ~50 mV from 9.4-12 V, under the bars' 0.1 V hysteresis.
+constexpr float VBAT_CAL = 1.03f;
 
 // Above hearing range: audible PWM made the board's ceramic caps whine. The IRLB3813's
 // big gate charge needs fast edges at this rate: 12 mA pin drive + a 22 Ω gate resistor.
