@@ -122,7 +122,7 @@ constexpr uint16_t PWM_RANGE = 1000;
 // Headlight duty per brightness setting, out of PWM_RANGE. LEDs look far brighter
 // than their duty cycle, so LOW sits well under 20 %.
 constexpr uint16_t DUTY_LOW = 50;    // 5 %
-constexpr uint16_t DUTY_MED = 250;   // 25 %
+constexpr uint16_t DUTY_MED = 200;   // 20 % (25 % at 200 Hz PWM; 1 kHz runs a little brighter)
 constexpr uint16_t DUTY_HIGH = PWM_RANGE;
 
 inline uint16_t brightnessDuty(Brightness b) {
@@ -135,8 +135,8 @@ constexpr uint8_t STROBE_PATTERN_COUNT = 3;
 
 constexpr uint32_t STROBE_FLICK_MS = 1000;
 constexpr uint32_t PULSE_PERIOD_MS = 1000, PULSE_ON_MS = 100;  // steady + full-power pulse
-// Steady + pulse: {steady, pulse} per brightness, out of PWM_RANGE (LOW 5->25 %, MED 25->50 %, HIGH 50->100 %).
-constexpr uint16_t PULSE_LEVELS[3][2] = {{DUTY_LOW, 250}, {250, 500}, {500, 1000}};
+// Steady + pulse: {steady, pulse} per brightness, out of PWM_RANGE (LOW 5->25 %, MED 20->50 %, HIGH 50->100 %).
+constexpr uint16_t PULSE_LEVELS[3][2] = {{DUTY_LOW, 250}, {DUTY_MED, 500}, {500, 1000}};
 constexpr uint32_t FLASH_PERIOD_MS = 750, FLASH_ON_MS = 80;    // sharp flash, dark between
 constexpr uint32_t DOUBLE_PERIOD_MS = 1000;                    // 60 on, 100 off, 60 on, rest off
 

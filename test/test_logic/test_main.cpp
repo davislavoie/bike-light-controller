@@ -159,7 +159,7 @@ void test_headlight_duty() {
 void test_steady_pulse() {
     const auto SP = StrobePattern::SteadyPulse;
     struct { Brightness b; uint16_t steady, pulse; } cases[] = {
-        {Brightness::Low, 50, 250}, {Brightness::Med, 250, 500}, {Brightness::High, 500, 1000}};
+        {Brightness::Low, 50, 250}, {Brightness::Med, DUTY_MED, 500}, {Brightness::High, 500, 1000}};
     for (auto c : cases) {
         TEST_ASSERT_EQUAL_UINT16(c.pulse, headDuty(HeadMode::Strobe, c.b, SP, 50));    // pulse
         TEST_ASSERT_EQUAL_UINT16(c.steady, headDuty(HeadMode::Strobe, c.b, SP, 500));  // steady
