@@ -141,7 +141,7 @@ constexpr uint32_t FLASH_PERIOD_MS = 750, FLASH_ON_MS = 80;    // sharp flash, d
 constexpr uint32_t DOUBLE_PERIOD_MS = 1000;                    // 60 on, 100 off, 60 on, rest off
 // Trickle between daytime flashes (out of PWM_RANGE): keeps the lamp's input cap charged so
 // LOW/MED flashes don't start cold, which buzzed at 1 kHz.
-constexpr uint16_t FLASH_IDLE_DUTY = 10;  // 1 % (0.1 % still buzzed)
+constexpr uint16_t FLASH_IDLE_DUTY = 5;  // 0.5 % (0.1 % still buzzed, 1 % glowed visibly)
 
 class StrobeSelector {
 public:
