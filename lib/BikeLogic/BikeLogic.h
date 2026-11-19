@@ -139,6 +139,9 @@ constexpr uint32_t PULSE_PERIOD_MS = 1000, PULSE_ON_MS = 100;  // steady + full-
 constexpr uint16_t PULSE_LEVELS[3][2] = {{DUTY_LOW, 250}, {DUTY_MED, 500}, {500, 1000}};
 constexpr uint32_t FLASH_PERIOD_MS = 750, FLASH_ON_MS = 80;    // sharp flash, dark between
 constexpr uint32_t DOUBLE_PERIOD_MS = 1000;                    // 60 on, 100 off, 60 on, rest off
+// Trickle between daytime flashes (out of PWM_RANGE): keeps the lamp's input cap charged so
+// LOW/MED flashes don't start cold, which buzzed at 1 kHz.
+constexpr uint16_t FLASH_IDLE_DUTY = 1;  // 0.1 %
 
 class StrobeSelector {
 public:
@@ -189,7 +192,7 @@ inline uint16_t headDuty(HeadMode m, Brightness b, StrobePattern p, uint32_t now
         const uint16_t* lv = PULSE_LEVELS[(uint8_t)b];
         return now % PULSE_PERIOD_MS < PULSE_ON_MS ? lv[1] : lv[0];
     }
-    return flashOn(p, now) ? brightnessDuty(b) : 0;
+    return flashOn(p, now) ? brightnessDuty(b) : FLASH_IDLE_DUTY;
 }
 
 // Daytime strobe = one of the two flasher patterns (headlight dark between flashes).

@@ -169,7 +169,7 @@ void test_steady_pulse() {
 void test_daytime_flash() {
     const auto DF = StrobePattern::DaytimeFlash;
     TEST_ASSERT_EQUAL_UINT16(DUTY_HIGH, headDuty(HeadMode::Strobe, Brightness::High, DF, 40));  // flash
-    TEST_ASSERT_EQUAL_UINT16(0, headDuty(HeadMode::Strobe, Brightness::High, DF, 400));         // dark
+    TEST_ASSERT_EQUAL_UINT16(FLASH_IDLE_DUTY, headDuty(HeadMode::Strobe, Brightness::High, DF, 400));  // trickle
     TEST_ASSERT_EQUAL_UINT16(DUTY_LOW, headDuty(HeadMode::Strobe, Brightness::Low, DF, 760));   // next flash, follows switch
 }
 
@@ -199,9 +199,9 @@ void test_slow_flicks_do_not_swap() {
 void test_double_flash() {
     const auto DB = StrobePattern::DoubleFlash;
     TEST_ASSERT_EQUAL_UINT16(DUTY_MED, headDuty(HeadMode::Strobe, Brightness::Med, DB, 10));    // flash 1
-    TEST_ASSERT_EQUAL_UINT16(0, headDuty(HeadMode::Strobe, Brightness::Med, DB, 100));          // gap
+    TEST_ASSERT_EQUAL_UINT16(FLASH_IDLE_DUTY, headDuty(HeadMode::Strobe, Brightness::Med, DB, 100));  // gap
     TEST_ASSERT_EQUAL_UINT16(DUTY_MED, headDuty(HeadMode::Strobe, Brightness::Med, DB, 180));   // flash 2
-    TEST_ASSERT_EQUAL_UINT16(0, headDuty(HeadMode::Strobe, Brightness::Med, DB, 500));          // dark
+    TEST_ASSERT_EQUAL_UINT16(FLASH_IDLE_DUTY, headDuty(HeadMode::Strobe, Brightness::Med, DB, 500));  // trickle
 }
 
 void test_flicks_cycle_all_three_patterns() {
