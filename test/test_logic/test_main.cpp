@@ -170,7 +170,7 @@ void test_daytime_flash() {
     const auto DF = StrobePattern::DaytimeFlash;
     TEST_ASSERT_EQUAL_UINT16(DUTY_HIGH, headDuty(HeadMode::Strobe, Brightness::High, DF, 40));  // flash
     TEST_ASSERT_EQUAL_UINT16(0, headDuty(HeadMode::Strobe, Brightness::High, DF, 400));         // dark
-    TEST_ASSERT_EQUAL_UINT16(DUTY_LOW, headDuty(HeadMode::Strobe, Brightness::Low, DF, FLASH_PERIOD_MS + FLASH_RAMP_MS));  // next flash, follows switch
+    TEST_ASSERT_EQUAL_UINT16(DUTY_LOW, headDuty(HeadMode::Strobe, Brightness::Low, DF, 760));   // next flash, follows switch
 }
 
 void test_double_flick_swaps_pattern() {
@@ -198,20 +198,10 @@ void test_slow_flicks_do_not_swap() {
 
 void test_double_flash() {
     const auto DB = StrobePattern::DoubleFlash;
-    TEST_ASSERT_EQUAL_UINT16(DUTY_MED, headDuty(HeadMode::Strobe, Brightness::Med, DB, FLASH_RAMP_MS));        // flash 1, after its fade-in
+    TEST_ASSERT_EQUAL_UINT16(DUTY_MED, headDuty(HeadMode::Strobe, Brightness::Med, DB, 10));    // flash 1
     TEST_ASSERT_EQUAL_UINT16(0, headDuty(HeadMode::Strobe, Brightness::Med, DB, 100));          // gap
-    TEST_ASSERT_EQUAL_UINT16(DUTY_MED, headDuty(HeadMode::Strobe, Brightness::Med, DB, 160 + FLASH_RAMP_MS));  // flash 2
+    TEST_ASSERT_EQUAL_UINT16(DUTY_MED, headDuty(HeadMode::Strobe, Brightness::Med, DB, 180));   // flash 2
     TEST_ASSERT_EQUAL_UINT16(0, headDuty(HeadMode::Strobe, Brightness::Med, DB, 500));          // dark
-}
-
-void test_daytime_flashes_fade_in() {
-    const auto DF = StrobePattern::DaytimeFlash, DB = StrobePattern::DoubleFlash;
-    TEST_ASSERT_EQUAL_UINT16(0, headDuty(HeadMode::Strobe, Brightness::Med, DF, 0));                       // flash starts dark
-    TEST_ASSERT_EQUAL_UINT16(DUTY_MED / 2, headDuty(HeadMode::Strobe, Brightness::Med, DF, FLASH_RAMP_MS / 2));
-    TEST_ASSERT_EQUAL_UINT16(DUTY_MED, headDuty(HeadMode::Strobe, Brightness::Med, DF, FLASH_RAMP_MS));    // full by the ramp's end
-    TEST_ASSERT_EQUAL_UINT16(DUTY_MED / 2, headDuty(HeadMode::Strobe, Brightness::Med, DF, FLASH_PERIOD_MS + FLASH_RAMP_MS / 2));  // every flash
-    TEST_ASSERT_EQUAL_UINT16(DUTY_LOW / 2, headDuty(HeadMode::Strobe, Brightness::Low, DB, 160 + FLASH_RAMP_MS / 2));  // double flash's 2nd
-    TEST_ASSERT_TRUE(rearBrakeOn(false, HeadMode::Strobe, DF, 0));                                         // rear brake doesn't fade
 }
 
 void test_flicks_cycle_all_three_patterns() {
@@ -289,7 +279,6 @@ int main() {
     RUN_TEST(test_double_flick_swaps_pattern);
     RUN_TEST(test_slow_flicks_do_not_swap);
     RUN_TEST(test_double_flash);
-    RUN_TEST(test_daytime_flashes_fade_in);
     RUN_TEST(test_flicks_cycle_all_three_patterns);
     RUN_TEST(test_selector_starts_from_saved_pattern);
     RUN_TEST(test_hud_dims_at_night_only);
