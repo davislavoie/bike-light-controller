@@ -141,7 +141,7 @@ constexpr uint32_t FLASH_PERIOD_MS = 750, FLASH_ON_MS = 80;    // sharp flash, d
 constexpr uint32_t DOUBLE_PERIOD_MS = 1000;                    // 60 on, 100 off, 60 on, rest off
 // Daytime flashes fade in over this long: starting cold at full duty slammed the lamp's empty
 // input cap and buzzed at 1 kHz PWM. Too short to see.
-constexpr uint32_t FLASH_RAMP_MS = 10;
+constexpr uint32_t FLASH_RAMP_MS = 20;  // 10 ms still buzzed
 
 class StrobeSelector {
 public:
