@@ -32,8 +32,8 @@ constexpr float VBAT_CAL = 1.03f;
 // drew 0.9 A (more than HIGH's 0.67 A) and the FET heated. 200 Hz fixed that but LOW
 // buzzed; 500 Hz moved the buzz to MED; 300 Hz LOW buzzed too much; 750 Hz buzzed.
 // 1 kHz: steady modes silent (MED 0.235 A at 25 %, LOW 0.1 A), but the daytime flasher
-// and double flash buzzed on LOW/MED. Trying 2 kHz.
-constexpr uint32_t HEAD_PWM_HZ = 2000;
+// and double flash buzzed on LOW/MED. Tried 2 kHz; trying 5 kHz.
+constexpr uint32_t HEAD_PWM_HZ = 5000;
 constexpr uint32_t DEBOUNCE_MS = 20;
 constexpr uint32_t BATTERY_PERIOD_MS = 50;
 constexpr uint32_t HUD_TURN_PERIOD_MS = 667;  // ~1.5 Hz blink
