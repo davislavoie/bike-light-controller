@@ -28,9 +28,10 @@ constexpr float VBAT_DIVIDER = 122.0f / 22.0f;
 // offset, so one gain is within ~50 mV from 9.4-12 V, under the bars' 0.1 V hysteresis.
 constexpr float VBAT_CAL = 1.03f;
 
-// Above hearing range: audible PWM made the board's ceramic caps whine. The IRLB3813's
-// big gate charge needs fast edges at this rate: 12 mA pin drive + a 22 Ω gate resistor.
-constexpr uint32_t HEAD_PWM_HZ = 25000;
+// Low enough that the lamp's own driver sees real off-time and dims. At 25 kHz its input
+// cap bridged the gaps: MED ran at full brightness and the FET heated (0.9 A vs 0.67 A on
+// HIGH). 200 Hz: no visible flicker, faint hum at most (1-5 kHz is the audible whine band).
+constexpr uint32_t HEAD_PWM_HZ = 200;
 constexpr uint32_t DEBOUNCE_MS = 20;
 constexpr uint32_t BATTERY_PERIOD_MS = 50;
 constexpr uint32_t HUD_TURN_PERIOD_MS = 667;  // ~1.5 Hz blink
@@ -146,7 +147,7 @@ void loop() {
     digitalWrite(PIN_REAR_TURN_L, leftOn(turn));
     digitalWrite(PIN_REAR_TURN_R, rightOn(turn));
 
-    // HUD LEDs are PWM-dimmed (same 25 kHz) so they don't glare at night.
+    // HUD LEDs are PWM-dimmed (same HEAD_PWM_HZ) so they don't glare at night.
     uint16_t hud = hudDuty(mode, bright, strobeSel.pattern());
     bool turnPhase = now % HUD_TURN_PERIOD_MS < HUD_TURN_PERIOD_MS / 2;
     analogWrite(PIN_LED_TURN_L, leftOn(turn) && turnPhase ? hud : 0);
