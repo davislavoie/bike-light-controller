@@ -139,6 +139,9 @@ constexpr uint32_t PULSE_PERIOD_MS = 1000, PULSE_ON_MS = 100;  // steady + full-
 constexpr uint16_t PULSE_LEVELS[3][2] = {{DUTY_LOW, 250}, {DUTY_MED, 500}, {500, 1000}};
 constexpr uint32_t FLASH_PERIOD_MS = 750, FLASH_ON_MS = 80;    // sharp flash, dark between
 constexpr uint32_t DOUBLE_PERIOD_MS = 1000;                    // 60 on, 100 off, 60 on, rest off
+// Daytime flashes fade in over this long: starting cold at full duty slammed the lamp's empty
+// input cap and buzzed at 1 kHz PWM. Too short to see.
+constexpr uint32_t FLASH_RAMP_MS = 10;
 
 class StrobeSelector {
 public:
@@ -175,12 +178,18 @@ inline uint16_t hudDuty(HeadMode m, Brightness b, StrobePattern p) {
     return night ? HUD_DUTY[(uint8_t)b] : PWM_RANGE;
 }
 
-// On/off timing of the two daytime flasher patterns.
-inline bool flashOn(StrobePattern p, uint32_t now) {
-    if (p == StrobePattern::DaytimeFlash) return now % FLASH_PERIOD_MS < FLASH_ON_MS;
+// Timing of the two daytime flasher patterns: ms since the current flash started, or
+// FLASH_DARK between flashes.
+constexpr uint32_t FLASH_DARK = UINT32_MAX;
+inline uint32_t flashAge(StrobePattern p, uint32_t now) {
+    if (p == StrobePattern::DaytimeFlash) {
+        uint32_t t = now % FLASH_PERIOD_MS;
+        return t < FLASH_ON_MS ? t : FLASH_DARK;
+    }
     uint32_t t = now % DOUBLE_PERIOD_MS;
-    return t < 60 || (t >= 160 && t < 220);
+    return t < 60 ? t : t >= 160 && t < 220 ? t - 160 : FLASH_DARK;
 }
+inline bool flashOn(StrobePattern p, uint32_t now) { return flashAge(p, now) != FLASH_DARK; }
 
 inline uint16_t headDuty(HeadMode m, Brightness b, StrobePattern p, uint32_t now) {
     if (m == HeadMode::Off) return 0;
@@ -189,7 +198,10 @@ inline uint16_t headDuty(HeadMode m, Brightness b, StrobePattern p, uint32_t now
         const uint16_t* lv = PULSE_LEVELS[(uint8_t)b];
         return now % PULSE_PERIOD_MS < PULSE_ON_MS ? lv[1] : lv[0];
     }
-    return flashOn(p, now) ? brightnessDuty(b) : 0;
+    uint32_t age = flashAge(p, now);
+    if (age == FLASH_DARK) return 0;
+    uint16_t level = brightnessDuty(b);
+    return age < FLASH_RAMP_MS ? level * age / FLASH_RAMP_MS : level;
 }
 
 // Daytime strobe = one of the two flasher patterns (headlight dark between flashes).
