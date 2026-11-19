@@ -18,7 +18,7 @@ Adafruit KB2040 (RP2040, arduino-pico core) running a bike's headlight, rear bra
 ## Hardware facts the code relies on
 - Inputs use internal pull-ups and are active-LOW, with no external pull-ups or caps; firmware debounces at 20ms.
 - The brake levers are NC to GND, so HIGH = squeezed, and a broken wire reads as braking.
-- Headlight: low-side IRLB3813 on GP0, PWM at 25kHz with `PWM_RANGE` 1000. Lower frequencies whine audibly.
+- Headlight: low-side IRLB3813 on GP0, PWM at 1kHz with `PWM_RANGE` 1000. Bench-tested: 25kHz left the slow-switching FET half-on (MED drew more than HIGH, FET heated); 200, 300, 500 and 750Hz buzzed on LOW or MED. The lamp's input cap stretches every pulse, so duty-to-brightness shifts with frequency: retune `DUTY_*` if it changes.
 - The rear lamp outputs (GP29 brake, GP28/GP27 turns, GP18 tail) drive TLP241A photorelays. These switch on/off only, never PWM (up to 5ms to switch).
   - The lamp flashes its own turn signal, so hold turn outputs steady.
   - The tail (runner) is on in every mode except a daytime strobe; the brake output flashes with any strobe, and real braking always overrides with solid on.
