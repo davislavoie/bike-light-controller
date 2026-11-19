@@ -30,8 +30,8 @@ constexpr float VBAT_CAL = 1.03f;
 
 // Low, because the IRLB3813 switches slowly off a 3.3 V pin: at 25 kHz it sat half-on, MED
 // drew 0.9 A (more than HIGH's 0.67 A) and the FET heated. 200 Hz fixed that but LOW
-// buzzed; 500 Hz moved the buzz to MED; trying 300 Hz (1-5 kHz is the audible whine band).
-constexpr uint32_t HEAD_PWM_HZ = 300;
+// buzzed; 500 Hz moved the buzz to MED; 300 Hz LOW buzzed too much; trying 1 kHz.
+constexpr uint32_t HEAD_PWM_HZ = 1000;
 constexpr uint32_t DEBOUNCE_MS = 20;
 constexpr uint32_t BATTERY_PERIOD_MS = 50;
 constexpr uint32_t HUD_TURN_PERIOD_MS = 667;  // ~1.5 Hz blink
